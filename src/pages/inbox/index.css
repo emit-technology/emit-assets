@@ -1,0 +1,11 @@
+.avatar-inbox{
+    border: 1px solid #ddd;
+}
+
+.bk {
+    border: 1px solid #dddddd;
+    padding: 6px;
+    text-align: center;
+    background: #ddd;
+    color: var(--ion-color-primary)
+}

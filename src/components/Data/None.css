@@ -1,0 +1,13 @@
+.data-none {
+    text-align: center;
+}
+
+.data-none img {
+    opacity: 0.1;
+    width: 60%;
+}
+
+.data-none div {
+    font-size: 24px;
+    color: #dddddd;
+}
