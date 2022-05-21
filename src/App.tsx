@@ -29,10 +29,10 @@ import {NftItems} from "./pages/nft/NftItems";
 import {NftDetail} from "./pages/nft/NftDetail";
 import {InboxPage} from "./pages/inbox/InboxPage";
 import {Receive} from "./pages/address/Receive";
-import {SendPage} from "./pages/address/Send";
+import {SendPage} from "./pages/tx/Send";
 import {TxList} from "./pages/tx/TxList";
 import {TxInfo} from "./pages/tx/TxInfo";
-import {SendNftPage} from "./pages/address/SendNft";
+import {SendNftPage} from "./pages/tx/SendNft";
 import {Settings} from "./pages/settings/Settings";
 
 setupIonicReact({

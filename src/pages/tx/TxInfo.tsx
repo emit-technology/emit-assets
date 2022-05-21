@@ -1,7 +1,5 @@
 import * as React from 'react';
 import {
-    IonAvatar,
-    IonButton,
     IonCol,
     IonContent,
     IonHeader,
@@ -9,25 +7,23 @@ import {
     IonItem,
     IonLabel,
     IonPage,
-    IonRow,IonText,
-    IonSegment,
-    IonSegmentButton,
+    IonRow, IonText,
     IonTitle,
     IonToolbar
 } from '@ionic/react';
 import {
     arrowBackOutline,
-    arrowDownOutline,
-    arrowUpOutline,
-    checkmarkCircle, checkmarkCircleOutline,
-    checkmarkOutline,
-    chevronBackOutline,
-    timeOutline
+    checkmarkCircleOutline,
 } from "ionicons/icons";
 import './index.css';
-import {ChainType} from "../../types";
+import {ChainType, TxDetail} from "../../types";
 import {oRouter} from "../../common/roter";
 import {QRCodeSVG} from 'qrcode.react';
+import rpc from "../../rpc";
+import {utils} from "../../common/utils";
+import {tokenService} from "../../service/token";
+import config from "../../common/config";
+import {accountService} from "../../service/emit/account";
 
 interface Props {
     refresh: number;
@@ -35,14 +31,88 @@ interface Props {
     txHash: string;
 }
 
-export class TxInfo extends React.Component<Props, any> {
+interface State {
+    txDetail?: TxDisplay
+}
+
+interface TxDisplay {
+    from: string;
+    to: Array<string>;
+    amountWithCy: Array<string>;
+    txHash: string;
+    time: string;
+    type: string;
+    url: string;
+    fee: string;
+    gasLimit: string;
+    gasPrice: string;
+}
+
+export class TxInfo extends React.Component<Props, State> {
+
+    state: State = {}
+
+    componentDidMount() {
+        this.init().catch(e => {
+            console.error(e)
+        })
+    }
+
+    _convertToTxDisplay = async (txDetail: TxDetail): Promise<TxDisplay> => {
+        const account = await accountService.getAccount();
+        const {chain} = this.props;
+        let type = "", amount = [];
+
+        const address = account.addresses[chain];
+        if (txDetail.records) {
+            const records = txDetail.records.filter(v => {
+                if (v.address.toLowerCase() == address.toLowerCase()) {
+                    return v
+                }
+            })
+            console.log(records)
+            if (records && records.length > 0) {
+                for (let record of records) {
+                    const token = await tokenService.info(chain, record.currency);
+                    const value = utils.fromValue(record.amount, token.decimal);
+                    const sym = value.toNumber()>0?"+ ":""
+                    amount.push(`${sym}${value.toString(10)} ${record.currency}`)
+                    type = value.toNumber() > 0 ? "Receive" : "Sent";
+                }
+            }
+        }
+        return {
+            from: txDetail.fromAddress,
+            to: txDetail.toAddress,
+            amountWithCy: amount,
+            txHash: txDetail.txHash,
+            time: utils.dateFormat(new Date(txDetail.timestamp * 1000)),
+            type: type,
+            //@ts-ignore
+            url: config.exploreUrl.tx[chain].format(txDetail.txHash),
+            fee: `${utils.fromValue(txDetail.fee,18).toString(10)} ${txDetail.feeCy}`,
+            gasLimit: utils.fromValue(txDetail.gas,0).toString(10),
+            gasPrice: `${utils.fromValue(txDetail.gasPrice, 9).toString(10) } GWei`,
+        }
+    }
+
+    init = async () => {
+        const {chain, txHash} = this.props;
+        const txDetail = await rpc.getTxInfo(chain, txHash)
+        const txDis = await this._convertToTxDisplay(txDetail)
+        this.setState({
+            txDetail: txDis
+        })
+    }
+
 
     render() {
+        const {txDetail} = this.state;
         return (
             <IonPage>
                 <IonHeader collapse="fade">
                     <IonToolbar>
-                        <IonIcon size="large" src={arrowBackOutline} onClick={()=>{
+                        <IonIcon size="large" src={arrowBackOutline} onClick={() => {
                             oRouter.back();
                         }}/>
                         <IonTitle>Transfer Details</IonTitle>
@@ -53,8 +123,12 @@ export class TxInfo extends React.Component<Props, any> {
                         <div className="token-icon">
                             <IonIcon src={checkmarkCircleOutline} size="large"/>
                         </div>
-                        <div><span className="token-tx-type">Sent</span></div>
-                        <div className="token-balance">-1 BSC-USD</div>
+                        <div><span className="token-tx-type">{txDetail && txDetail.type}</span></div>
+                        <div className="token-balance">{
+                            txDetail && txDetail.amountWithCy.map((v, i) => {
+                                return <div key={i}>{v}</div>
+                            })
+                        }</div>
                     </div>
                     <div>
                         <IonItem>
@@ -64,7 +138,8 @@ export class TxInfo extends React.Component<Props, any> {
                                         <div><IonText color="medium">Txn Hash</IonText></div>
                                     </IonCol>
                                     <IonCol size="9">
-                                        <div><IonText></IonText>0xfc65447b53336f23f492f6eb00bb00a66f7ed1a7bec4f41435d5f2a13427a364</div>
+                                        <div><IonText>{txDetail && txDetail.txHash}</IonText>
+                                        </div>
                                     </IonCol>
                                 </IonRow>
                             </IonLabel>
@@ -76,7 +151,7 @@ export class TxInfo extends React.Component<Props, any> {
                                         <div><IonText color="medium">From</IonText></div>
                                     </IonCol>
                                     <IonCol size="9">
-                                        <div><IonText></IonText>0x3f349bbafec1551819b8be1efea2fc46ca749aa1</div>
+                                        <div><IonText>{txDetail && txDetail.from}</IonText></div>
                                     </IonCol>
                                 </IonRow>
                             </IonLabel>
@@ -88,7 +163,13 @@ export class TxInfo extends React.Component<Props, any> {
                                         <div><IonText color="medium">To</IonText></div>
                                     </IonCol>
                                     <IonCol size="9">
-                                        <div><IonText></IonText>0x3f349bbafec1551819b8be1efea2fc46ca749aa1</div>
+                                        {
+                                            txDetail && txDetail.to.map((v, i) => {
+                                                return <div key={i}>
+                                                    <IonText>{v}</IonText>
+                                                </div>
+                                            })
+                                        }
                                     </IonCol>
                                 </IonRow>
                             </IonLabel>
@@ -100,22 +181,30 @@ export class TxInfo extends React.Component<Props, any> {
                                         <div><IonText color="medium">Fee</IonText></div>
                                     </IonCol>
                                     <IonCol size="9">
-                                        <div><IonText></IonText>0.0000138512 ETH</div>
+                                        <div><IonText>{txDetail && txDetail.fee}</IonText></div>
+                                        <IonText color="medium">
+                                            <div>({txDetail && txDetail.gasPrice} * {txDetail && txDetail.gasLimit})</div>
+                                        </IonText>
                                     </IonCol>
                                 </IonRow>
                             </IonLabel>
                         </IonItem>
                     </div>
-                    <div className="receive-qr" style={{background:"#fff"}}>
-                        <div className="viewa" onClick={()=>{
-                            window.open("https://bscscan.com")
-                        }}>View the transaction &gt;</div>
-                        <div className="qr-1">
-                            <div>
-                                <QRCodeSVG value={"0xfc65447b53336f23f492f6eb00bb00a66f7ed1a7bec4f41435d5f2a13427a364"} size={100} />
+                    {
+                        txDetail && txDetail.url &&
+                        <div className="receive-qr" style={{background: "#fff"}}>
+                            <div className="viewa" onClick={() => {
+                                window.open(txDetail.url)
+                            }}>View the transaction &gt;</div>
+                            <div className="qr-1">
+                                <div>
+                                    <QRCodeSVG value={txDetail.url}
+                                               size={100}/>
+
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 </IonContent>
             </IonPage>
         );

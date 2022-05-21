@@ -1,10 +1,8 @@
 export interface AccountModel {
     accountId?: string
     name: string
-    password?: string
     avatar?: string
-    hint?: string
-    addresses?: Array<{ [chainType: number]: string }>
+    addresses?: { [chainType: number]: string }
     createType?: CreateType;
 }
 
@@ -29,6 +27,10 @@ export interface Inbox {
     timestamp: number;
     amount: string;
 
-    token:string;
+    token: string;
     tokenHash: string;
+}
+
+export interface Balance {
+    [chain_symbol_address:string]: string;
 }

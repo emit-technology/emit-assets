@@ -4,14 +4,18 @@ export interface Token {
     name: string;
     symbol: string;
     decimal: number;
-    totalSupply: string;
+    totalSupply?: string;
     contractAddress: string;
     image?: string;
-    protocol:TokenProtocol;
+    protocol: TokenProtocol;
     chain: ChainType;
+    balance?: string
 }
 
-export enum TokenProtocol{
+export enum TokenProtocol {
     ERC20 = "ERC20",
     BEP20 = "BEP20",
+    EMIT = "EMIT",
+    BSC = "BSC",
+    ETH = "ETH"
 }

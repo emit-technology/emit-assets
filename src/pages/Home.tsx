@@ -5,35 +5,35 @@ import {
     IonButtons,
     IonCol,
     IonContent,
-    IonHeader,
+    IonHeader, IonToast,
     IonIcon,
     IonLabel,
     IonModal,
-    IonPage,
+    IonPage, IonLoading,
     IonRow,
-    IonSegment,IonText,
+    IonSegment, IonText,
     IonSegmentButton,
     IonTitle,
     IonToolbar
 } from '@ionic/react';
 import './Home.css';
-import {ChainType} from "../types";
+import {AccountModel} from "../types";
 import {
-    addCircleOutline,
     arrowDownCircleOutline,
     arrowUpCircleOutline,
-    linkOutline,
+    linkOutline, optionsOutline,
     scanCircleOutline
 } from "ionicons/icons";
 import {NftList} from "../components/Nft/List";
 import {oRouter} from "../common/roter";
-import {nftService} from "../data/nft";
-import {NftStandard,Token} from "../types";
+import {NftStandard, Token} from "../types";
 import {TokenList} from "../components/Tokens/List";
-import {tokenService} from "../data/token";
+import {tokenService} from "../service/token";
 import {TokenListModal} from "../components/Tokens/ListModal";
-import {accountService} from "../data/emit/account";
+import {accountService} from "../service/emit/account";
 import {utils} from "../common/utils";
+import config from "../common/config";
+import {interVarBalance} from "../common/interVal";
 
 interface Props {
     router: HTMLIonRouterOutletElement | null;
@@ -46,18 +46,26 @@ interface State {
     showModal: boolean;
     tokens: Array<Token>;
     modal: string;
-    account:string;
+    addr: string;
+    account?: AccountModel;
+    allTokens: Array<Token>;
+    showLoading: boolean;
+    showToast: boolean;
+    toastMsg?: string
 }
 
 export class Home extends React.Component<Props, State> {
 
     state: State = {
         tab: "tokens",
-        nftData: [],
+        nftData: config.recommendNfts,
         showModal: false,
-        tokens: [],
+        tokens: config.recommendTokens,
         modal: "",
-        account: ""
+        addr: "",
+        allTokens: [],
+        showLoading: false,
+        showToast: false
     }
 
     setTab = (v: string) => {
@@ -70,28 +78,48 @@ export class Home extends React.Component<Props, State> {
         this.init().catch(e => {
             console.error(e)
         })
-
-        accountService.emitBox.onActiveWalletChanged((addr)=>{
+        accountService.emitBox.onActiveAccountChanged((account) => {
+            accountService.setAccount(account).catch(e => console.error(e))
             this.setState({
-                account:addr
+                account: account
             })
+            this.initBalance(account).catch(e => console.error(e));
         })
+
+        //auto fetch balance;
+        interVarBalance.start(() => {
+            this.initBalance().catch(e => console.error(e))
+        }, 5 * 1000, true)
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
         if (prevProps.refresh != this.props.refresh) {
-            this.init().catch(e => {
-                console.error(e)
-            })
+            this.init().catch(e => console.error(e));
         }
     }
 
     init = async () => {
-
+        const account = await accountService.getAccount();
+        await this.initBalance(account);
+        const tks = await tokenService.list(true);
         this.setState({
-            nftData: await nftService.list(),
-            tokens: await tokenService.list()
+            allTokens: tks
         })
+    }
+
+    initBalance = async (act?: AccountModel) => {
+        const {account} = this.state;
+        if (!act) {
+            act = account;
+        }
+        if (act) {
+            const tokensCache = await tokenService.getTokenWithBalance(act);
+            this.setState({tokens: tokensCache, account: act});
+
+            tokenService.getBalanceRemote(act).then(token => {
+                this.setState({tokens: token});
+            });
+        }
     }
 
     setShowModal = (f: boolean, modal: string) => {
@@ -101,35 +129,54 @@ export class Home extends React.Component<Props, State> {
         })
     }
 
-    reqAct = async ()=>{
-        const rest = await accountService.accounts();
+    setShowLoading = (f: boolean) => {
         this.setState({
-            account:rest && rest.length>0 ?rest[0] :""
+            showLoading: f
         })
     }
 
+    requestAccount = async () => {
+        const account = await accountService.emitBox.requestAccount()
+        await accountService.setAccount(account.result);
+        this.setState({
+            account: account.result,
+        })
+        this.setShowLoading(true);
+        await this.init();
+    }
+
+    setShowToast = (f: boolean, msg?: string) => {
+        this.setState({
+            showToast: f,
+            toastMsg: msg
+        })
+    }
 
     render() {
-        const {tab, nftData, showModal, tokens, modal,account} = this.state;
+        const {tab, nftData, showModal, tokens, showToast, toastMsg, showLoading, modal, allTokens, addr, account} = this.state;
         const {router} = this.props;
         return (
             <IonPage>
                 <IonHeader mode="ios" collapse="fade">
                     <IonToolbar>
                         <IonButtons slot="start">
-                            <IonButton fill="solid" color="light" mode="ios" style={{margin: "12px"}} onClick={()=>{
-                               if(account){
-                                   accountService.showWidget();
-                               }else{
-                                   this.reqAct().catch(e=>{console.error(e)});
-                               }
+                            <IonButton fill="solid" color="light" mode="ios" style={{margin: "12px"}} onClick={() => {
+                                this.requestAccount().then(() => {
+                                    this.setShowLoading(false)
+                                }).catch(e => {
+                                    console.error(e)
+                                    this.setShowLoading(false)
+                                });
                             }}>
                                 <IonIcon slot="start" icon={linkOutline}/> EMIT-Wallet
                             </IonButton>
                         </IonButtons>
-                        <IonTitle className="ion-text-center">
-                            Assets
-                            <div><small><IonText color="medium">{account && utils.ellipsisStr(account)}</IonText></small></div>
+                        <IonTitle className="ion-text-center" onClick={() => {
+
+                        }}>
+                            {account && account.name}
+                            <div><small><IonText color="medium">{addr && utils.ellipsisStr(addr)}</IonText></small>
+                            </div>
                         </IonTitle>
                         <IonButtons slot="end">
                             <IonAvatar className="avatar" style={{margin: "0 12px 0 0"}}>
@@ -167,7 +214,7 @@ export class Home extends React.Component<Props, State> {
                                         <IonAvatar className="avatar" onClick={() => {
                                             this.setShowModal(true, "add")
                                         }}>
-                                            <IonIcon src={addCircleOutline} size="large"/>
+                                            <IonIcon src={optionsOutline} size="large"/>
                                         </IonAvatar>
                                     </div>
                                 </IonCol>
@@ -190,9 +237,9 @@ export class Home extends React.Component<Props, State> {
                             {
                                 tab == "tokens" ?
                                     <div>
-                                       <TokenList tokens={tokens} onSelect={(v)=>{
-                                           oRouter.txList(ChainType.BSC, v.symbol)
-                                       }}/>
+                                        <TokenList tokens={tokens} onSelect={(v) => {
+                                            oRouter.txList(v.chain, v.symbol)
+                                        }}/>
 
                                     </div> :
                                     <div>
@@ -211,22 +258,29 @@ export class Home extends React.Component<Props, State> {
                                 presentingElement={router || undefined}
                                 onDidDismiss={() => this.setShowModal(false, "")}>
                                 <div>
-                                    <TokenListModal tokens={tokens}
-                                               title={modal == 'add' ? "Add Tokens" : "Select Token"}
-                                               onClose={() => {
-                                                   this.setShowModal(false, "");
-                                               }}
-                                               onSend={modal == 'send' ? (token) => {
-                                                   this.setShowModal(false, "");
-                                                   oRouter.transferToken(token.chain,token.symbol)
-                                               } : undefined}
-                                               onReceive={modal == 'receive' ? (token) => {
-                                                   this.setShowModal(false, "");
-                                                   oRouter.addressReceive(token.chain,token.symbol)
-                                               } : undefined}
-                                               onAdd={modal == 'add' ? () => {
-
-                                               } : undefined}/>
+                                    <TokenListModal tokens={modal == 'add' ? allTokens : tokens}
+                                                    title={modal == 'add' ? "Add Tokens" : "Select Token"}
+                                                    onClose={() => {
+                                                        this.initBalance().catch(e => console.error(e))
+                                                        this.setShowModal(false, "");
+                                                    }}
+                                                    onSend={modal == 'send' ? (token) => {
+                                                        this.setShowModal(false, "");
+                                                        oRouter.transferToken(token.chain, token.symbol)
+                                                    } : undefined}
+                                                    onReceive={modal == 'receive' ? (token) => {
+                                                        this.setShowModal(false, "");
+                                                        oRouter.addressReceive(token.chain, token.symbol, account.addresses[token.chain])
+                                                    } : undefined}
+                                                    onHide={modal == 'add' ? (hide, token) => {
+                                                        tokenService.hide(hide, token)
+                                                    } : undefined} doReorder={(event) => {
+                                        const sortItems = event.detail.complete(allTokens);
+                                        tokenService.setSortNum(sortItems);
+                                        this.setState({
+                                            allTokens: sortItems
+                                        })
+                                    }}/>
 
                                 </div>
                                 <IonButton onClick={() => this.setShowModal(false, "")}>Close Modal</IonButton>
@@ -338,6 +392,21 @@ export class Home extends React.Component<Props, State> {
                 {/*        </div>*/}
                 {/*    </div>*/}
                 {/*</IonContent>*/}
+                <IonLoading
+                    cssClass='my-custom-class'
+                    isOpen={showLoading}
+                    onDidDismiss={() => this.setShowLoading(false)}
+                    message={'Loading balance...'}
+                    duration={60 * 1000}
+                />
+
+                <IonToast
+                    isOpen={showToast}
+                    onDidDismiss={() => this.setShowToast(false)}
+                    message={toastMsg}
+                    duration={1500}
+                />
+
             </IonPage>
         );
     }

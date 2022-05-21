@@ -13,7 +13,7 @@ import {
 import {arrowBackOutline, chevronBackOutline, linkOutline, scanCircleOutline} from "ionicons/icons";
 import {NftList} from "../../components/Nft/List";
 import {oRouter} from "../../common/roter";
-import {nftService} from "../../data/nft";
+import {nftService} from "../../service/nft";
 import {ChainType} from "../../types";
 
 interface Props {

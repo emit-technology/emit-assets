@@ -6,11 +6,20 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <App/>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
+
+//TODO
+// @ts-ignore
+String.prototype.format = function () {
+    if (arguments.length == 0) return this;
+    for (var s = this, i = 0; i < arguments.length; i++)
+        s = s.replace(new RegExp("\\{" + i + "\\}", "g"), arguments[i]);
+    return s;
+};
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

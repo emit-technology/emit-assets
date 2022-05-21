@@ -2,29 +2,29 @@ import {ChainType} from "./emit";
 
 type TraitType = string | number;
 
-export interface Attribute{
+export interface Attribute {
     trait_type: string;
     value: TraitType;
 }
 
-export interface NftMeta{
+export interface NftMeta {
     name: string;
     description: string;
     image: string;
     attributes: Array<Attribute>;
 }
 
-export enum NftProtocol{
+export enum NftProtocol {
     ERC721 = "ERC-721",
     ERC1155 = "ERC-1155",
 }
 
-export interface NftStandard{
+export interface NftStandard {
     contract_address: string;
-    token_id: any;
-    symbol:string;
+    token_id?: any;
+    symbol: string;
     name: string;
     protocol: NftProtocol;
     chain?: ChainType;
-    meta:NftMeta;
+    meta: NftMeta;
 }

@@ -12,7 +12,7 @@ import {
     IonToolbar
 } from "@ionic/react";
 import {arrowBackOutline, chevronBackOutline, linkOutline, scanCircleOutline} from "ionicons/icons";
-import {nftService} from "../../data/nft";
+import {nftService} from "../../service/nft";
 import {ChainType} from "../../types";
 import {NftStandard} from "../../types/nft";
 import {NftInfo} from "../../components/Nft/Info";
