@@ -5,7 +5,7 @@ import {
     IonHeader,
     IonIcon,
     IonItem,
-    IonLabel,
+    IonLabel,IonBadge,
     IonPage,
     IonRow, IonText,
     IonTitle,
@@ -16,19 +16,21 @@ import {
     checkmarkCircleOutline,
 } from "ionicons/icons";
 import './index.css';
-import {ChainType, TxDetail} from "../../types";
+import { TxDetail} from "../../types";
+import {ChainType} from '@emit-technology/emit-types';
 import {oRouter} from "../../common/roter";
 import {QRCodeSVG} from 'qrcode.react';
-import rpc from "../../rpc";
 import {utils} from "../../common/utils";
 import {tokenService} from "../../service/token";
 import config from "../../common/config";
-import {accountService} from "../../service/emit/account";
+import {emitBoxSdk} from "../../service/emit";
+import {txService} from "../../service/tx";
 
 interface Props {
     refresh: number;
     chain: ChainType;
     txHash: string;
+    blockNum: null;
 }
 
 interface State {
@@ -46,6 +48,7 @@ interface TxDisplay {
     fee: string;
     gasLimit: string;
     gasPrice: string;
+    num:number
 }
 
 export class TxInfo extends React.Component<Props, State> {
@@ -59,7 +62,7 @@ export class TxInfo extends React.Component<Props, State> {
     }
 
     _convertToTxDisplay = async (txDetail: TxDetail): Promise<TxDisplay> => {
-        const account = await accountService.getAccount();
+        const account = await emitBoxSdk.getAccount();
         const {chain} = this.props;
         let type = "", amount = [];
 
@@ -70,7 +73,6 @@ export class TxInfo extends React.Component<Props, State> {
                     return v
                 }
             })
-            console.log(records)
             if (records && records.length > 0) {
                 for (let record of records) {
                     const token = await tokenService.info(chain, record.currency);
@@ -88,8 +90,9 @@ export class TxInfo extends React.Component<Props, State> {
             txHash: txDetail.txHash,
             time: utils.dateFormat(new Date(txDetail.timestamp * 1000)),
             type: type,
+            num: txDetail.num,
             //@ts-ignore
-            url: config.exploreUrl.tx[chain].format(txDetail.txHash),
+            url: config.chains[chain].explorer.tx.format(txDetail.txHash),
             fee: `${utils.fromValue(txDetail.fee,18).toString(10)} ${txDetail.feeCy}`,
             gasLimit: utils.fromValue(txDetail.gas,0).toString(10),
             gasPrice: `${utils.fromValue(txDetail.gasPrice, 9).toString(10) } GWei`,
@@ -97,8 +100,8 @@ export class TxInfo extends React.Component<Props, State> {
     }
 
     init = async () => {
-        const {chain, txHash} = this.props;
-        const txDetail = await rpc.getTxInfo(chain, txHash)
+        const {chain, txHash,blockNum} = this.props;
+        const txDetail = await txService.info(chain,txHash,blockNum)
         const txDis = await this._convertToTxDisplay(txDetail)
         this.setState({
             txDetail: txDis
@@ -129,6 +132,9 @@ export class TxInfo extends React.Component<Props, State> {
                                 return <div key={i}>{v}</div>
                             })
                         }</div>
+                        <div>
+                            <IonText color="medium">{txDetail && txDetail.time}</IonText>
+                        </div>
                     </div>
                     <div>
                         <IonItem>
@@ -170,6 +176,18 @@ export class TxInfo extends React.Component<Props, State> {
                                                 </div>
                                             })
                                         }
+                                    </IonCol>
+                                </IonRow>
+                            </IonLabel>
+                        </IonItem>
+                        <IonItem>
+                            <IonLabel className="ion-text-wrap">
+                                <IonRow>
+                                    <IonCol size="3">
+                                        <div><IonText color="medium">Block</IonText></div>
+                                    </IonCol>
+                                    <IonCol size="9">
+                                        <div>{txDetail && <IonBadge>{txDetail.num}</IonBadge>}</div>
                                     </IonCol>
                                 </IonRow>
                             </IonLabel>

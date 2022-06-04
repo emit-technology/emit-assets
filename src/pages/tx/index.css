@@ -8,9 +8,19 @@
     justify-content: space-evenly;
 }
 .token-icon{
-    max-width: 60px;
+    width: 65px;
+    height: 65px;
     border-radius: 50%;
     overflow: hidden;
+    color: var(--ion-color-medium);
+    padding: 5px;
+    /*border: 1px solid var(--ion-color-light);*/
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    flex-wrap: wrap;
+    font-weight: 600;
+    justify-content: center;
 }
 
 
@@ -48,4 +58,8 @@
     font-size: 14px;
     color: var(--ion-color-primary);
     text-decoration: underline;
+}
+
+.icon-transform{
+    /*transform: translateY(5px);*/
 }

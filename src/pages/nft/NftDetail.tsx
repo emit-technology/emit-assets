@@ -13,7 +13,7 @@ import {
 } from "@ionic/react";
 import {arrowBackOutline, chevronBackOutline, linkOutline, scanCircleOutline} from "ionicons/icons";
 import {nftService} from "../../service/nft";
-import {ChainType} from "../../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 import {NftStandard} from "../../types/nft";
 import {NftInfo} from "../../components/Nft/Info";
 import {oRouter} from "../../common/roter";

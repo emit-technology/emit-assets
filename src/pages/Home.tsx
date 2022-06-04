@@ -17,7 +17,7 @@ import {
     IonToolbar
 } from '@ionic/react';
 import './Home.css';
-import {AccountModel} from "../types";
+import {AccountModel} from "@emit-technology/emit-types";
 import {
     arrowDownCircleOutline,
     arrowUpCircleOutline,
@@ -30,7 +30,7 @@ import {NftStandard, Token} from "../types";
 import {TokenList} from "../components/Tokens/List";
 import {tokenService} from "../service/token";
 import {TokenListModal} from "../components/Tokens/ListModal";
-import {accountService} from "../service/emit/account";
+import {emitBoxSdk} from "../service/emit";
 import {utils} from "../common/utils";
 import config from "../common/config";
 import {interVarBalance} from "../common/interVal";
@@ -78,8 +78,8 @@ export class Home extends React.Component<Props, State> {
         this.init().catch(e => {
             console.error(e)
         })
-        accountService.emitBox.onActiveAccountChanged((account) => {
-            accountService.setAccount(account).catch(e => console.error(e))
+        emitBoxSdk.emitBox.onActiveAccountChanged((account) => {
+            emitBoxSdk.setAccount(account).catch(e => console.error(e))
             this.setState({
                 account: account
             })
@@ -99,7 +99,7 @@ export class Home extends React.Component<Props, State> {
     }
 
     init = async () => {
-        const account = await accountService.getAccount();
+        const account = await emitBoxSdk.getAccount();
         await this.initBalance(account);
         const tks = await tokenService.list(true);
         this.setState({
@@ -112,13 +112,13 @@ export class Home extends React.Component<Props, State> {
         if (!act) {
             act = account;
         }
-        if (act) {
+        if (act && act.name) {
             const tokensCache = await tokenService.getTokenWithBalance(act);
             this.setState({tokens: tokensCache, account: act});
 
             tokenService.getBalanceRemote(act).then(token => {
                 this.setState({tokens: token});
-            });
+            }).catch(e=>{console.error(e)});
         }
     }
 
@@ -136,13 +136,17 @@ export class Home extends React.Component<Props, State> {
     }
 
     requestAccount = async () => {
-        const account = await accountService.emitBox.requestAccount()
-        await accountService.setAccount(account.result);
-        this.setState({
-            account: account.result,
-        })
-        this.setShowLoading(true);
-        await this.init();
+        const rest = await emitBoxSdk.emitBox.requestAccount()
+        if(rest.error){
+            this.setShowToast(true,rest.error)
+        }else{
+            await emitBoxSdk.setAccount(rest.result);
+            this.setState({
+                account: rest.result,
+            })
+            this.setShowLoading(true);
+            await this.init();
+        }
     }
 
     setShowToast = (f: boolean, msg?: string) => {
@@ -150,6 +154,12 @@ export class Home extends React.Component<Props, State> {
             showToast: f,
             toastMsg: msg
         })
+    }
+
+    addCustomerToken = async (v:Token) =>{
+        await tokenService.addToken(v)
+        await this.init();
+        this.setShowModal(false, "");
     }
 
     render() {
@@ -161,6 +171,10 @@ export class Home extends React.Component<Props, State> {
                     <IonToolbar>
                         <IonButtons slot="start">
                             <IonButton fill="solid" color="light" mode="ios" style={{margin: "12px"}} onClick={() => {
+                                // accountService.showWidget();
+                                // accountService.ethWeb3.eth.getAccounts((err,accounts)=>{
+                                //     console.log(err,accounts)
+                                // })
                                 this.requestAccount().then(() => {
                                     this.setShowLoading(false)
                                 }).catch(e => {
@@ -238,7 +252,7 @@ export class Home extends React.Component<Props, State> {
                                 tab == "tokens" ?
                                     <div>
                                         <TokenList tokens={tokens} onSelect={(v) => {
-                                            oRouter.txList(v.chain, v.symbol)
+                                            oRouter.txList(v.chain, v.symbol,v.contractAddress)
                                         }}/>
 
                                     </div> :
@@ -256,7 +270,10 @@ export class Home extends React.Component<Props, State> {
                                 isOpen={showModal}
                                 swipeToClose={true}
                                 presentingElement={router || undefined}
-                                onDidDismiss={() => this.setShowModal(false, "")}>
+                                onDidDismiss={() => {
+                                    this.initBalance().catch(e => console.error(e))
+                                    this.setShowModal(false, "")
+                                }}>
                                 <div>
                                     <TokenListModal tokens={modal == 'add' ? allTokens : tokens}
                                                     title={modal == 'add' ? "Add Tokens" : "Select Token"}
@@ -266,7 +283,7 @@ export class Home extends React.Component<Props, State> {
                                                     }}
                                                     onSend={modal == 'send' ? (token) => {
                                                         this.setShowModal(false, "");
-                                                        oRouter.transferToken(token.chain, token.symbol)
+                                                        oRouter.transferToken(token.chain, token.symbol,token.contractAddress)
                                                     } : undefined}
                                                     onReceive={modal == 'receive' ? (token) => {
                                                         this.setShowModal(false, "");
@@ -274,7 +291,11 @@ export class Home extends React.Component<Props, State> {
                                                     } : undefined}
                                                     onHide={modal == 'add' ? (hide, token) => {
                                                         tokenService.hide(hide, token)
-                                                    } : undefined} doReorder={(event) => {
+                                                    } : undefined}
+                                                    onAddToken={modal == 'add'? (v)=>{
+                                                        this.addCustomerToken(v).catch(e=>{console.error(e)})
+                                                    }:undefined}
+                                                    doReorder={(event) => {
                                         const sortItems = event.detail.complete(allTokens);
                                         tokenService.setSortNum(sortItems);
                                         this.setState({
@@ -401,6 +422,8 @@ export class Home extends React.Component<Props, State> {
                 />
 
                 <IonToast
+                    position="top"
+                    color="primary"
                     isOpen={showToast}
                     onDidDismiss={() => this.setShowToast(false)}
                     message={toastMsg}

@@ -2,6 +2,8 @@
   "name": "emit-cross",
   "version": "0.0.1",
   "private": true,
+  "homepage": "./",
+  "main": "index.html",
   "dependencies": {
     "@capacitor/app": "1.1.1",
     "@capacitor/core": "3.4.3",
@@ -9,6 +11,7 @@
     "@capacitor/keyboard": "1.2.2",
     "@capacitor/status-bar": "1.0.8",
     "@emit-technology/emit-account-node-sdk": "file:../emit-account-node-sdk",
+    "@emit-technology/emit-types": "file:../emit-types",
     "@ionic/react": "^6.0.0",
     "@ionic/react-router": "^6.0.0",
     "@testing-library/jest-dom": "^5.11.9",
@@ -42,7 +45,8 @@
     "workbox-range-requests": "^5.1.4",
     "workbox-routing": "^5.1.4",
     "workbox-strategies": "^5.1.4",
-    "workbox-streams": "^5.1.4"
+    "workbox-streams": "^5.1.4",
+    "emit-lib": "file:../emit-lib"
   },
   "scripts": {
     "start": "export PORT=3005;react-app-rewired start .env",
@@ -58,9 +62,11 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "chrome >= 67",
+      "edge >= 79",
+      "firefox >= 68",
+      "opera >= 54",
+      "safari >= 14"
     ],
     "development": [
       "last 1 chrome version",
@@ -72,7 +78,9 @@
     "@capacitor/cli": "3.4.3",
     "assert": "^2.0.0",
     "axios": "^0.26.1",
+    "babel-plugin-transform-bigint": "^1.0.20",
     "bignumber.js": "^9.0.2",
+    "bn.js": "^5.2.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.1",

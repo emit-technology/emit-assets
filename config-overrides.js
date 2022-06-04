@@ -21,9 +21,8 @@ module.exports = function override (config, env) {
 
     config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({
-            Buffer: ['buffer','Buffer']
+            Buffer: ['buffer','Buffer'],
         }),
     ])
-    console.log(dotenv.config().parsed);
     return config
 }

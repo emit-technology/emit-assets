@@ -1,10 +1,9 @@
 import * as React from 'react';
 import {IonPage, IonContent, IonHeader,IonChip,IonButton, IonText,IonTitle,IonInput,IonRow,IonCol,IonItemDivider, IonToolbar,IonItem,IonLabel,IonTextarea, IonIcon} from '@ionic/react';
-import {ChainType} from "../../types";
 import {arrowBackOutline, chevronBackOutline, chevronForwardOutline} from "ionicons/icons";
 import './index.css';
 import {oRouter} from "../../common/roter";
-
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 interface Props {
     refresh: number;
     chain: ChainType;

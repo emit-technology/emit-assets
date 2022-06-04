@@ -1,8 +1,14 @@
 import BigNumber from 'bignumber.js';
-import {toValue} from "../../../../emit-wallet/src/utils";
+import {Category, Factor} from "@emit-technology/emit-account-node-sdk";
+import config from "./config";
+import {Token, TokenProtocol} from "../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import web3Utils from "web3-utils";
+import {checkSumAddress, fromAddressBytes} from 'emit-lib/lib/wallet/address';
 
-var format = require('date-format');
 
+const format = require('date-format');
+const BN = require("bn.js");
 export const utils = {
     ellipsisStr: function (v: string, num?: number) {
         if (!v) return ""
@@ -10,7 +16,7 @@ export const utils = {
             num = 7
         }
         if (v.length >= 15) {
-            return v.slice(0, num) + " ... " + v.slice(v.length - num, v.length);
+            return v.slice(0, num) + "..." + v.slice(v.length - num, v.length);
         }
         return v
     },
@@ -70,7 +76,137 @@ export const utils = {
         return "0x" + new BigNumber(value).toString(16)
     },
 
-    dateFormat (date:Date){
-        return format(format.ISO8601_WITH_TZ_OFFSET_FORMAT, date);
+    dateFormat(date: Date) {
+        return format("dd/MM/yyyy hh:mm:ss", date);
     },
+
+    toHash(v: string): string {
+        return Buffer.alloc(32, 0)
+            .fill(Buffer.from(v), 0, Buffer.from(v).length)
+            .toString("hex");
+
+    },
+
+    formatCategoryString: (category: Category): string => {
+        const name = utils.fromHex(category.name);
+        if (
+            category.field === config.chains[ChainType.EMIT].nodeAddress &&
+            category.name ===
+            "0000000000000000000000000000000000000000000000000000000000000000"
+        ) {
+            return "EASTER";
+        }
+        return name;
+    },
+
+    factorToToken: (factor: Factor): Token => {
+        return {
+            symbol: utils.formatCategoryString(factor.category),
+            name: utils.formatCategoryString(factor.category),
+            decimal: 18,
+            contractAddress: factor.category.field,
+            protocol: TokenProtocol.EMIT,
+            chain: ChainType.EMIT,
+            balance: utils.fromHexValue(factor.value, 0).toString(10)
+        }
+    },
+
+    getChainByName: (name: string): ChainType => {
+        const keys = Object.keys(ChainType)
+        for (let key of keys) {
+            if (ChainType[key] == name) {
+                return parseInt(key)
+            }
+        }
+        return ChainType._
+    },
+
+    token2Category: (token: Token): Category => {
+        return {
+            name: utils.strToHex(token.symbol),
+            field: token.contractAddress
+        }
+    },
+
+    strToHex: (v: string, len: number = 32) => {
+        const buf = Buffer.alloc(len, 0);
+        const dataBuf = Buffer.from(v);
+        if (dataBuf.length > len) {
+            throw new Error("str is too long");
+        }
+        return buf.fill(dataBuf, 0, dataBuf.length).toString("hex");
+    },
+
+    fromHex(v: string): any {
+        if (!v) {
+            return "";
+        }
+        const chr = "\u0000";
+        const regex = "/" + chr + "/g";
+        //.replace(regex,"");
+        const str = Buffer.from(v, "hex").toString();
+        return str.replace(eval(regex), "");
+    },
+
+    fromHexValue: (v: string, decimal: number = 18): BigNumber => {
+        return new BigNumber(new BN(v, "hex", "le").toString()).dividedBy(
+            10 ** decimal
+        );
+    },
+
+    // toHex(v: string, len?: number) {
+    //   if (!v) {
+    //     return "";
+    //   }
+    //   if (len) {
+    //     return new BN(v).toArrayLike(Buffer, "le", len).toString("hex");
+    //   }
+    //   return Buffer.from(v).toString("hex");
+    // }
+
+    toValueHex(v: any, decimal: number = 18) {
+        const cv = new BigNumber(v).multipliedBy(10 ** decimal).toString(16);
+        return new BN(cv, "hex").toArrayLike(Buffer, "le", 32).toString("hex");
+    },
+
+    canUseEmitAccountNode: (chain: number) => {
+        return chain == ChainType.BSC || chain == ChainType.ETH
+    },
+
+    isWeb3Chain: (chain: number) => {
+        return chain == ChainType.BSC || chain == ChainType.ETH
+    },
+
+    isErc20Token: (token: Token) => {
+        return token.protocol == TokenProtocol.ERC20 || token.protocol == TokenProtocol.BEP20
+    },
+
+    checkAddress: (address: string, chain: ChainType): boolean => {
+        if (utils.isWeb3Chain(chain)) {
+            return web3Utils.checkAddressChecksum(web3Utils.toChecksumAddress(address))
+        } else if (chain == ChainType.EMIT) {
+            return checkSumAddress(address)
+        }
+        return false
+    },
+
+    toAddressHex: (address: string, chain: ChainType): string => {
+        if (chain == ChainType.EMIT) {
+            return "0x" + fromAddressBytes(address).toString("hex")
+        } else {
+            if (utils.isWeb3Chain(chain)) {
+                return address;
+            }
+        }
+        throw new Error(`Chain [${ChainType[chain]}] not found!`)
+    },
+
+    waitTime: async (defaultSecond = 1) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(true)
+            }, defaultSecond * 1000)
+        })
+    }
+
 }

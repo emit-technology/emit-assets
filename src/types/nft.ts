@@ -1,4 +1,4 @@
-import {ChainType} from "./emit";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 
 type TraitType = string | number;
 

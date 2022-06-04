@@ -1,6 +1,5 @@
-import {ChainType} from "../types";
 import {Token, TokenProtocol} from "../types/token";
-
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 export const token_cache:Array<Token> = [
 ]
 

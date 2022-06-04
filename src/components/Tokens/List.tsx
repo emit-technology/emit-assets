@@ -72,7 +72,7 @@ export const TokenList: React.FC<Props> = ({tokens,doReorder,onSelect, onSend,
                                     <div className="b-value">{v.balance?utils.nFormatter(v.balance,3):"0.000"}</div>
                                     <div>
                                         <IonText color="medium">
-                                            {v.symbol}
+                                            {utils.ellipsisStr(v.symbol,8)}
                                         </IonText>
                                     </div>
                                 </IonLabel>
@@ -82,6 +82,12 @@ export const TokenList: React.FC<Props> = ({tokens,doReorder,onSelect, onSend,
                 })
             }
             </IonReorderGroup>
+            <IonItem lines={"none"}>
+                <IonLabel></IonLabel>
+            </IonItem>
+            <IonItem lines={"none"}>
+                <IonLabel></IonLabel>
+            </IonItem>
         </>
     );
 }

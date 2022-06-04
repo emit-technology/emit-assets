@@ -1,4 +1,4 @@
-import {ChainType} from "../../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 import {Token} from "../../types/token";
 
 export interface IToken {

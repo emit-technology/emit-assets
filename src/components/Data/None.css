@@ -5,7 +5,8 @@
 
 .data-none img {
     opacity: 0.1;
-    width: 60%;
+    width: 40%;
+    max-width: 200px;
 }
 
 .data-none div {

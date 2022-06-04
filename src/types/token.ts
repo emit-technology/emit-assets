@@ -1,4 +1,4 @@
-import {ChainType} from "./emit";
+import {ChainType} from '@emit-technology/emit-types';
 
 export interface Token {
     name: string;
@@ -10,6 +10,8 @@ export interface Token {
     protocol: TokenProtocol;
     chain: ChainType;
     balance?: string
+    feeCy?: string
+    symbolTag?:string
 }
 
 export enum TokenProtocol {

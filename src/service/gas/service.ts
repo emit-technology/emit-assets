@@ -1,11 +1,12 @@
 import {IGas} from './interface';
-import {ChainType} from "../../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {utils} from "../../common/utils";
 
 class GasService implements IGas {
 
     defaultGas = (chain:ChainType) =>{
-        if(chain == ChainType.ETH || chain == ChainType.BSC){
-            return "25000"
+        if(utils.isWeb3Chain(chain)){
+            return "21000"
         }
         return "0"
     }

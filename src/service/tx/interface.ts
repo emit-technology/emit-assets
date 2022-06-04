@@ -1,8 +1,8 @@
-import {ChainType, Tx, TxResp} from "../../types";
-
+import {Tx, TxResp} from "../../types";
+import {ChainType} from '@emit-technology/emit-types';
 export interface ITx {
 
-    list: (chain:ChainType,symbol:string,pageSize:number,pageNo:number) => Promise<TxResp>;
+    list: (chain:ChainType,symbol:string,pageSize:number,pageNo:number,tokenAddress:string) => Promise<TxResp>;
 
     info: (chain:ChainType,txHash:string) => Promise<Tx>;
 

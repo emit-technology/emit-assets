@@ -1,5 +1,5 @@
 import {NftProtocol, NftStandard} from "../types/nft";
-import {ChainType} from "../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 
 export const nft_cache:Array<NftStandard> = [
 ]

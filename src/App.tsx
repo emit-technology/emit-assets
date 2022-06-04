@@ -69,25 +69,31 @@ const App: React.FC = () => {
                                                 address={props.match.params.address}
                                                 token={props.match.params.token}/>
                             } }/>
-                            <Route exact path="/send/token/:chain/:symbol" component={(props)=>{
+                            <Route exact path="/send/token/:chain/:symbol/:tokenAddress" component={(props)=>{
                                 return <SendPage refresh={Math.floor(Date.now()/1000)}
                                                  chain={props.match.params.chain}
-                                                 symbol={props.match.params.symbol}/>
+                                                 symbol={props.match.params.symbol}
+                                                 tokenAddress={props.match.params.tokenAddress}
+                                />
                             } }/>
                             <Route exact path="/send/nft/:chain/:tokenId" component={(props)=>{
                                 return <SendNftPage refresh={Math.floor(Date.now()/1000)}
                                                  chain={props.match.params.chain}
                                                  tokenId={props.match.params.tokenId}/>
                             } }/>
-                            <Route exact path="/tx/list/:chain/:symbol" component={(props)=>{
+                            <Route exact path="/tx/list/:chain/:symbol/:tokenAddress" component={(props)=>{
                                 return <TxList refresh={Math.floor(Date.now()/1000)}
                                                chain={props.match.params.chain}
-                                               symbol={props.match.params.symbol}/>
+                                               symbol={props.match.params.symbol}
+                                               tokenAddress={props.match.params.tokenAddress}
+                                />
                             } }/>
-                            <Route exact path="/tx/info/:chain/:txHash" component={(props)=>{
+                            <Route exact path="/tx/info/:chain/:txHash/:blockNum" component={(props)=>{
                                 return <TxInfo refresh={Math.floor(Date.now()/1000)}
                                                chain={props.match.params.chain}
-                                               txHash={props.match.params.txHash}/>
+                                               txHash={props.match.params.txHash}
+                                               blockNum={props.match.params.blockNum}
+                                />
                             } }/>
                             <Route exact path="/">
                                 <Redirect to="/tab/home"/>

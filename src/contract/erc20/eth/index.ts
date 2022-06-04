@@ -1,9 +1,9 @@
 import {Erc20, ABI} from "../index";
 import BigNumber from "bignumber.js";
 import EthContract from "../../EthContract";
-import {ChainType} from "../../../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 
-class Eth extends EthContract implements Erc20 {
+class Erc20Contract extends EthContract implements Erc20 {
 
     constructor(address: string,chain:ChainType) {
         super(address,ABI,chain);
@@ -33,6 +33,18 @@ class Eth extends EthContract implements Erc20 {
         return this.contract.methods.transferFrom(from,to,"0x"+value.toString(16)).encodeABI()
     }
 
+    decimals = async (): Promise<number> => {
+        return await this.contract.methods.decimals().call()
+    }
+
+    name = async(): Promise<string> => {
+        return await this.contract.methods.name().call()
+    }
+
+    symbol = async (): Promise<string> => {
+        return await this.contract.methods.symbol().call()
+    }
+
 }
 
-export default Eth
+export default Erc20Contract

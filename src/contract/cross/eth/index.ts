@@ -1,7 +1,7 @@
 import {Cross} from "../index";
 import BigNumber from "bignumber.js";
 import EthContract from "../../EthContract";
-import {ChainType} from "../../../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 
 const ABI_CROSS = [
     {
@@ -14,6 +14,49 @@ const ABI_CROSS = [
                 "type": "uint8"
             }
         ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "originChainID",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint64",
+                "name": "depositNonce",
+                "type": "uint64"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "resourceID",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "callback",
+                "type": "bytes"
+            },
+            {
+                "internalType": "bytes[]",
+                "name": "signs",
+                "type": "bytes[]"
+            }
+        ],
+        "name": "commitVotes",
+        "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -38,11 +81,16 @@ const ABI_CROSS = [
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "callback",
+                "type": "bytes"
             }
         ],
         "name": "depositFT",
         "outputs": [],
-        "stateMutability": "payable",
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -90,14 +138,14 @@ const ABI_CROSS = [
     }
 ]
 
-class Eth extends EthContract implements Cross{
+class EthCross extends EthContract implements Cross{
 
     constructor(address:string,chain:ChainType) {
         super(address,ABI_CROSS,chain);
     }
 
     depositFT(destinationChainID: number, resourceID: string, recipient: string, amount: BigNumber): Promise<any> {
-        return this.contract.methods.depositFT(destinationChainID,resourceID,recipient,"0x"+amount.toString(16)).encodeABI()
+        return this.contract.methods.depositFT(destinationChainID,resourceID,recipient,"0x"+amount.toString(16),"0x0").encodeABI()
     }
 
     minCrossAmount = async (resourceId: string): Promise<string> => {
@@ -109,6 +157,10 @@ class Eth extends EthContract implements Cross{
         return [new BigNumber(rest[0]),new BigNumber(rest[1])]
     }
 
+    commitVotes = async (originChainID: number, depositNonce: number,resourceID:string, recipient: string, amount: BigNumber, callback:any,signs:any): Promise<any> => {
+        return this.contract.methods.commitVotes(originChainID,depositNonce,resourceID,recipient,"0x"+amount.toString(16),callback,signs).encodeABI()
+    }
+
 }
 
-export default Eth
+export default EthCross

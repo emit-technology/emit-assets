@@ -14,7 +14,7 @@ import {arrowBackOutline, chevronBackOutline, linkOutline, scanCircleOutline} fr
 import {NftList} from "../../components/Nft/List";
 import {oRouter} from "../../common/roter";
 import {nftService} from "../../service/nft";
-import {ChainType} from "../../types";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
 
 interface Props {
     refresh: number;

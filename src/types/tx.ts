@@ -1,4 +1,4 @@
-import {ChainType} from "./emit";
+import {ChainType} from '@emit-technology/emit-types';
 import {Common} from "web3-core";
 
 export interface Tx {

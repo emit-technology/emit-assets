@@ -16,7 +16,7 @@
  along with E.M.I.T. . If not, see <http://www.gnu.org/licenses/>.
  */
 import EthContract from "../EthContract";
-import {ChainType} from "../../types";
+import {ChainType} from '@emit-technology/emit-types';
 
 const ABI=[
     {

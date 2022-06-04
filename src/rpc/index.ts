@@ -1,10 +1,8 @@
 import axios from "axios";
-import {AccountModel, Balance, ChainType, Token, TxDetail} from "../types";
-import {accountService} from "../service/emit/account";
-import selfStorage from "../common/storage";
+import {Token, TxDetail} from "../types";
+import {ChainType} from '@emit-technology/emit-types';
+import {emitBoxSdk} from "../service/emit";
 import config from "../common/config";
-import {utils} from "../common/utils";
-import {tokenService} from "../service/token";
 
 class RPC {
 
@@ -81,8 +79,7 @@ class RPC {
     }
 
     initNFT = async () => {
-        console.log("init NFT...")
-        const account = await accountService.getAccount();
+        const account = await emitBoxSdk.getAccount();
         if (account && account.addresses) {
             // await this.getTicketEth(account.addresses[ChainType.ETH])
             // await this.getTicketBSC(account.addresses[ChainType.BSC])
@@ -90,9 +87,9 @@ class RPC {
     }
 
 
-    getTransactions = async (chain: ChainType, address: string, cy: string, hash: string, pageSize: number, pageNo: number, fingerprint?: string) => {
+    getTransactions = async (chain: ChainType, address: string, cy: string, hash: string, pageSize: number, pageNo: number, fingerprint?: string,tokenAddress?:string) => {
         const prefix = this._getPrefix(chain)
-        const rest: any = await this.post([prefix, "getTransactions"].join("_"), [address, cy, hash, pageSize, pageNo, fingerprint], chain)
+        const rest: any = await this.post([prefix, "getTransactions"].join("_"), [address, cy, hash, pageSize, pageNo, fingerprint, tokenAddress], chain)
         return rest;
     }
 
@@ -116,6 +113,12 @@ class RPC {
 
     getTransactionByHash = async (txHash: string, chain: ChainType) => {
         return await this.post(chain == ChainType.SERO ? "sero_getTransactionByHash" : "eth_getTransactionByHash", [txHash], chain);
+    }
+
+    addToken = async (token:Token,chain:ChainType):Promise<boolean> =>{
+        const prefix = this._getPrefix(chain)
+        const rest: boolean = await this.post([prefix, "addToken"].join("_"), [token], chain)
+        return rest;
     }
 
 }

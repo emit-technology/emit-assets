@@ -1,4 +1,4 @@
-import {ChainType} from "../types";
+import {ChainType} from '@emit-technology/emit-types';
 import {interVarBalance} from "./interVal";
 
 class Router {
@@ -31,20 +31,20 @@ class Router {
         this._go(["address/receive", chain, address, symbol].join("/"));
     }
 
-    transferToken = (chain: ChainType, symbol: string) => {
-        this._go(["send/token", chain, symbol].join("/"));
+    transferToken = (chain: ChainType, symbol: string,tokenAddress:string) => {
+        this._go(["send/token", chain, symbol,tokenAddress].join("/"));
     }
 
     transferNft = (chain: ChainType, tokenId: string) => {
         this._go(["send/nft", chain, tokenId].join("/"));
     }
 
-    txList = (chain: ChainType, symbol: string) => {
-        this._go(["tx/list", chain, symbol].join("/"));
+    txList = (chain: ChainType, symbol: string,tokenAddress:string) => {
+        this._go(["tx/list", chain, symbol,tokenAddress].join("/"));
     }
 
-    txInfo = (chain: ChainType, txHash: string) => {
-        this._go(["tx/info", chain, txHash].join("/"));
+    txInfo = (chain: ChainType, txHash: string,blockNum:number) => {
+        this._go(["tx/info", chain, txHash,blockNum].join("/"));
     }
 
     home = () => {

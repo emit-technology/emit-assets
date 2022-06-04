@@ -31,6 +31,18 @@ class Sero extends SeroContract implements Erc20{
     transferFrom(from: string, to: string, value: BigNumber): Promise<any> {
         return this.contract.packData("transferFrom", [from,to,"0x"+value.toString(16)], true)
     }
+
+    decimals(): Promise<number> {
+        return Promise.resolve(0);
+    }
+
+    name(): Promise<string> {
+        return Promise.resolve("");
+    }
+
+    symbol(): Promise<string> {
+        return Promise.resolve("");
+    }
 }
 
 export default Sero

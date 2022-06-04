@@ -4,21 +4,37 @@ import {
     IonAvatar, IonCardContent, IonBadge, IonCardHeader,
     IonRow, IonCol, IonSegment, IonSegmentButton
 } from '@ionic/react';
-import {Inbox} from "../../types";
+import {SettleResp} from "@emit-technology/emit-account-node-sdk";
+import {utils} from "../../common/utils";
 
 interface Props{
-    items: Array<any>
+    items: Array<SettleResp>
+    onReceive:(strp:Array<SettleResp>)=>void;
 }
 
-export const InboxList:React.FC<Props> = ({items})=>{
+export const InboxList:React.FC<Props> = ({items,onReceive})=>{
     return (<>
         {
             items.map((v,i)=>{
-                return <IonCard>
+                return <IonCard key={i}>
                     <IonCardHeader>
-                        <IonCardTitle className="balance-span2">10000.000 <small>EASTER</small></IonCardTitle>
+                        <IonCardTitle className="balance-span2">
+                            <IonRow>
+                                <IonCol size="4">
+                                    +{utils.fromHexValue(v.factor.factor.value).toString(10)}&nbsp;
+                                </IonCol>
+                                <IonCol size="8">
+                                    <div style={{textAlign:"right"}}>
+                                        <IonBadge>
+                                            {utils.formatCategoryString(v.factor.factor.category)}&nbsp;
+                                            <small style={{fontSize:"35%",letterSpacing:"0"}}>[{utils.ellipsisStr(v.factor.factor.category.field,4)}]</small>
+                                        </IonBadge>
+                                    </div>
+                                </IonCol>
+                            </IonRow>
+                        </IonCardTitle>
                         <IonCardSubtitle>
-                            12:57:12 2021/8/16
+                            {utils.dateFormat(new Date(v.factor.timestamp*1000))}
                         </IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
@@ -27,11 +43,16 @@ export const InboxList:React.FC<Props> = ({items})=>{
                                 <div className="bk">Bk</div>
                             </IonCol>
                             <IonCol size="5">
-                                <div><IonText color="primary"><IonBadge>1234</IonBadge></IonText> </div>
-                                <div>Index <IonText color="primary">1</IonText></div>
+                                <div><IonText color="primary"><IonBadge>{v.from_index_key.num}</IonBadge></IonText> </div>
+                                <div>Index <IonText color="primary">{v.from_index_key.index}</IonText></div>
                             </IonCol>
                             <IonCol size="5" className="ion-text-right">
-                                <IonChip>EMIT CORE</IonChip>
+                                {
+                                    v.settled?<IonBadge color="success">SETTLED</IonBadge>:
+                                        <IonButton expand="block" size="small" onClick={()=>{
+                                            onReceive([v])
+                                        }}>Receive</IonButton>
+                                }
                             </IonCol>
                         </IonRow>
                         <IonRow>
@@ -39,13 +60,7 @@ export const InboxList:React.FC<Props> = ({items})=>{
                                 <div className="bk">Fm</div>
                             </IonCol>
                             <IonCol size="10">
-                                <div style={{fontSize: '14px'}}>EXWRht9orgUVs2PD1AWRQbRaNcUaAdynC8H4nXeVFaSWzi7fp</div>
-                            </IonCol>
-                        </IonRow>
-                        <IonRow>
-                            <IonCol size="8"></IonCol>
-                            <IonCol size="4">
-                                <IonButton expand="block" size="small">Receive</IonButton>
+                                <div style={{fontSize: '14px'}}>{v.from_index_key.from}</div>
                             </IonCol>
                         </IonRow>
                     </IonCardContent>

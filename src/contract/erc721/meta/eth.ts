@@ -1,7 +1,7 @@
 import EthContract from "../../EthContract";
 import Erc721 from "../index";
-import {ChainType} from "../../../types";
-import {accountService} from "../../../service/emit/account";
+import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {emitBoxSdk} from "../../../service/emit";
 
 const ABI = [
     {
@@ -435,11 +435,11 @@ class Eth extends EthContract implements Erc721 {
             "stateMutability": "nonpayable",
             "type": "function"
         }
-        const signName = accountService.ethWeb3.eth.abi.encodeFunctionSignature(abi)
+        const signName = emitBoxSdk.web3[this.chain].eth.abi.encodeFunctionSignature(abi)
         if(signName != input.slice(0,10)){
             return ""
         }
-        const rest = await accountService.ethWeb3.eth.abi.decodeParameters(abi["inputs"],"0x"+input.slice(10))
+        const rest = await emitBoxSdk.web3[this.chain].eth.abi.decodeParameters(abi["inputs"],"0x"+input.slice(10))
         return rest;
     }
 
