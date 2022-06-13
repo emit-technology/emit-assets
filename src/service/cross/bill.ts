@@ -1,6 +1,6 @@
 import rpc from "../../rpc";
 import config from "../../common/config";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import {emitBoxSdk} from "../emit";
 import {CrossBill} from "../../types/cross";
 import EthCross from "../../contract/cross/eth";
@@ -28,7 +28,7 @@ class Bill {
         const contract = new EthCross(address, chain);
         const data = await contract.commitVotes(bill.SourceId, bill.DepositNonce, bill.ResourceId, bill.recipient, new BigNumber(bill.amount), bill.callbackParam, bill.signatures);
         const bridgeAddress = await crossConfig.getTokenContractBridge(chain)
-        const tx = await txService.web3Send(chain, bridgeAddress, "0x0", 18, data)
+        const tx = await txService._web3Send(chain, bridgeAddress, "0x0", 18, data)
         await txService.waitTxConfirm(chain, tx.transactionHash)
         return {transactionHash: tx.transactionHash, chain: chain};
     }

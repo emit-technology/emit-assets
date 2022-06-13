@@ -1,4 +1,4 @@
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import EmitBox from '@emit-technology/emit-account-node-sdk';
 import Web3 from 'web3';
 import selfStorage from "../../common/storage";
@@ -47,8 +47,8 @@ class EmitBoxSdk {
     }
 
     getAccount = async (): Promise<AccountModel> => {
-        const account: AccountModel = selfStorage.getItem(this.key)
-        return account
+        const act: AccountModel = selfStorage.getItem(this.key)
+        return act
     }
 
     setAccount = async (account: AccountModel) => {

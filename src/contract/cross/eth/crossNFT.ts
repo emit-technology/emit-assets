@@ -1,6 +1,6 @@
 import EthContract from "../../EthContract";
 import BigNumber from "bignumber.js";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import {emitBoxSdk} from "../../../service/emit";
 
 const ABI = [

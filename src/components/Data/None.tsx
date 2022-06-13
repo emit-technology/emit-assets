@@ -5,10 +5,8 @@ interface Props {
     desc?: string
 }
 export const NoneData:React.FC<Props> = ({desc = 'NO DATA'}) =>{
-    return (<>
-        <div className="data-none">
-            <img src="./assets/img/data/none.png"/>
-            <div>{desc}</div>
-        </div>
-    </>);
+    return (<div className="data-none">
+        <img src="./assets/img/data/none.png"/>
+        <div>{desc}</div>
+    </div>);
 }

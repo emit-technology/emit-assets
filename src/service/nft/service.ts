@@ -1,7 +1,7 @@
 import {INft} from './interface';
 import {NftStandard} from "../../types/nft";
 import {nft_cache} from "../../memory/nft";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 
 class NftService implements INft {
 

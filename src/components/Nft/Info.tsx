@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {NftStandard} from "../../types/nft";
 import {IonButton, IonCol, IonItem, IonItemDivider, IonLabel, IonRow} from '@ionic/react';
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import {oRouter} from "../../common/roter";
 
 interface Props {

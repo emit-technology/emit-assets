@@ -41,7 +41,7 @@ export class Settings extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<any>, snapshot?: any) {
-        if (prevProps.refresh != this.props.refresh) {
+        if (prevProps.refresh != this.props.refresh && window.location.hash.indexOf("#/tab/settings")>-1) {
             this.init().catch(e => {
                 console.error(e)
             })

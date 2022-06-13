@@ -1,6 +1,6 @@
 import axios from "axios";
 import {Token, TxDetail} from "../types";
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import {emitBoxSdk} from "../service/emit";
 import config from "../common/config";
 

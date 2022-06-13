@@ -5,19 +5,19 @@ import {
     IonHeader,
     IonIcon,
     IonItem,
-    IonLabel,IonBadge,
+    IonLabel, IonBadge,
     IonPage,
     IonRow, IonText,
     IonTitle,
-    IonToolbar
+    IonToolbar, IonToast
 } from '@ionic/react';
 import {
     arrowBackOutline,
-    checkmarkCircleOutline,
+    checkmarkCircleOutline, copyOutline,
 } from "ionicons/icons";
 import './index.css';
 import { TxDetail} from "../../types";
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import {oRouter} from "../../common/roter";
 import {QRCodeSVG} from 'qrcode.react';
 import {utils} from "../../common/utils";
@@ -25,6 +25,7 @@ import {tokenService} from "../../service/token";
 import config from "../../common/config";
 import {emitBoxSdk} from "../../service/emit";
 import {txService} from "../../service/tx";
+import BigNumber from "bignumber.js";
 
 interface Props {
     refresh: number;
@@ -35,6 +36,8 @@ interface Props {
 
 interface State {
     txDetail?: TxDisplay
+    showToast: boolean
+    toastMsg: string
 }
 
 interface TxDisplay {
@@ -53,7 +56,7 @@ interface TxDisplay {
 
 export class TxInfo extends React.Component<Props, State> {
 
-    state: State = {}
+    state: State = {showToast:false,toastMsg:""}
 
     componentDidMount() {
         this.init().catch(e => {
@@ -75,6 +78,9 @@ export class TxInfo extends React.Component<Props, State> {
             })
             if (records && records.length > 0) {
                 for (let record of records) {
+                    if(new BigNumber(record.amount).toNumber() == 0 ){
+                        continue
+                    }
                     const token = await tokenService.info(chain, record.currency);
                     const value = utils.fromValue(record.amount, token.decimal);
                     const sym = value.toNumber()>0?"+ ":""
@@ -108,9 +114,14 @@ export class TxInfo extends React.Component<Props, State> {
         })
     }
 
-
+    setShowToast = (f: boolean, msg?: string) => {
+        this.setState({
+            showToast: f,
+            toastMsg: msg
+        })
+    }
     render() {
-        const {txDetail} = this.state;
+        const {txDetail,showToast,toastMsg} = this.state;
         return (
             <IonPage>
                 <IonHeader collapse="fade">
@@ -144,7 +155,11 @@ export class TxInfo extends React.Component<Props, State> {
                                         <div><IonText color="medium">Txn Hash</IonText></div>
                                     </IonCol>
                                     <IonCol size="9">
-                                        <div><IonText>{txDetail && txDetail.txHash}</IonText>
+                                        <div onClick={()=>{
+                                            this.setShowToast(true,"Copied to clipboard!")
+                                        }}>
+                                            <IonText>{txDetail && txDetail.txHash}</IonText>
+                                            &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}/>
                                         </div>
                                     </IonCol>
                                 </IonRow>
@@ -223,6 +238,14 @@ export class TxInfo extends React.Component<Props, State> {
                             </div>
                         </div>
                     }
+                    <IonToast
+                        isOpen={showToast}
+                        onDidDismiss={() => this.setShowToast(false)}
+                        message={toastMsg}
+                        duration={1500}
+                        position="top"
+                        color="primary"
+                    />
                 </IonContent>
             </IonPage>
         );

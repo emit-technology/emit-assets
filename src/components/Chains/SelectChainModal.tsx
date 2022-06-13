@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {CrossToken} from "../../types/cross";
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import {IonPage,IonText,IonModal,IonHeader,IonItem,IonAvatar,IonLabel,IonToolbar,IonTitle,IonIcon,IonContent} from '@ionic/react'
 import {close, linkOutline} from "ionicons/icons";
 import {utils} from "../../common/utils";
@@ -42,7 +42,8 @@ export const SelectChainModal: React.FC<Props> = ({isOpen, onOk, onCancel,crossT
                                 onOk(chainId)
                             }}>
                                 <IonAvatar slot="start">
-                                    <IonIcon src={linkOutline} size="large" className="icon-transform"/>
+                                    {/*<IonIcon src={linkOutline} size="large" className="icon-transform"/>*/}
+                                    <img src={`./assets/img/chain/${chainId}.png`}/>
                                 </IonAvatar>
                                 <IonLabel className="ion-text-wrap">
                                     <b>{config.chains[chainId].description}</b>

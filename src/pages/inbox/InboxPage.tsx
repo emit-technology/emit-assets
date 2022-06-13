@@ -5,7 +5,7 @@ import {
     IonLabel,
     IonLoading,
     IonPage,
-    IonSearchbar,
+    IonSearchbar,IonBadge,
     IonSegment,
     IonSegmentButton,
     IonTitle, IonToast,
@@ -14,35 +14,36 @@ import {
 import {InboxList} from "../../components/Inbox/List";
 import './index.css';
 import {emitBoxSdk} from "../../service/emit";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel, ChainType} from '@emit-technology/emit-lib';
 import {FactorSet, Settle, SettleResp} from "@emit-technology/emit-account-node-sdk";
 import {CrossBill} from "../../types/cross";
 import {crossBillService} from "../../service/cross/bill";
 import {BillList} from "../../components/Inbox/BillList";
 import {oRouter} from "../../common/roter";
+import {NoneData} from "../../components/Data/None";
+import {inboxService} from "../../service/inbox";
 
 interface Props {
     router: HTMLIonRouterOutletElement | null;
     refresh: number
+    onUpdate: (settles:number)=>void;
 }
 
 interface State {
-    settles: Array<SettleResp>
+    data: Array<any>
     showLoading: boolean,
-    bills: Array<CrossBill>,
     segment: string
-    showToast:boolean,
-    toastMsg:string
+    showToast: boolean,
+    toastMsg: string,
 }
 
 export class InboxPage extends React.Component<Props, State> {
     state: State = {
-        settles: [],
+        data: [],
         showLoading: false,
-        bills: [],
-        segment: "settles",
-        showToast:false,
-        toastMsg:""
+        segment: "unSettle",
+        showToast: false,
+        toastMsg: "",
     };
 
     componentDidMount() {
@@ -52,7 +53,7 @@ export class InboxPage extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<any>, snapshot?: any) {
-        if (prevProps.refresh != this.props.refresh) {
+        if (prevProps.refresh != this.props.refresh && window.location.hash.indexOf("#/tab/inbox")>-1) {
             this.init().catch(e => {
                 console.error(e)
             })
@@ -60,13 +61,11 @@ export class InboxPage extends React.Component<Props, State> {
     }
 
     init = async () => {
-        const account = await emitBoxSdk.getAccount();
-        const settles = await emitBoxSdk.emitBox.emitDataNode.getSettles(account.addresses[ChainType.EMIT]);
-        const bills = await crossBillService.list(ChainType.BSC);
+        const data = await inboxService.listUnsettle();
         this.setState({
-            settles: settles,
-            bills: bills
+            data: data,
         })
+        this.props.onUpdate(data.length);
     }
 
     onReceive = async (settles: Array<SettleResp>) => {
@@ -116,17 +115,19 @@ export class InboxPage extends React.Component<Props, State> {
 
     onVote = async (bill: CrossBill) => {
         const rest = await crossBillService.commitVote(bill);
-        oRouter.txInfo(rest.chain,rest.transactionHash,0)
+        oRouter.txInfo(rest.chain, rest.transactionHash, 0)
     }
 
-    setShowToast = (f:boolean,msg?:string)=>{
+    setShowToast = (f: boolean, msg?: string) => {
         this.setState({
-            showToast:f,
-            toastMsg:msg
+            showToast: f,
+            toastMsg: msg
         })
     }
+
     render() {
-        const {settles, showLoading, segment, bills,showToast,toastMsg} = this.state;
+        const {showLoading, segment, data, showToast, toastMsg} = this.state;
+
         return (
             <IonPage>
                 <IonHeader mode="ios" collapse="fade">
@@ -137,49 +138,74 @@ export class InboxPage extends React.Component<Props, State> {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen>
-                    <IonSearchbar></IonSearchbar>
-                    <div style={{position: 'sticky', top: 0, background: "#fff", zIndex: "1000"}}>
-                        <IonSegment className="segment" value={segment} mode="md" onIonChange={e => {
-                            this.setState({segment: e.detail.value});
-                            this.init().catch(e=>console.error(e))
-                        }}>
-                            <IonSegmentButton className="seg-btn" mode="md" value="settles">
-                                <IonLabel>Settles</IonLabel>
-                            </IonSegmentButton>
-                            <IonSegmentButton className="seg-btn" mode="md" value="bills">
-                                <IonLabel>Bills</IonLabel>
-                            </IonSegmentButton>
-                        </IonSegment>
-                    </div>
+                    {/*<div style={{position: 'sticky', top: 0, background: "#fff", zIndex: "1000"}}>*/}
+                    {/*    <IonSegment className="segment" value={segment} mode="md" onIonChange={e => {*/}
+                    {/*        this.setState({segment: e.detail.value});*/}
+                    {/*        this.init().catch(e => console.error(e))*/}
+                    {/*    }}>*/}
+                    {/*        <IonSegmentButton className="seg-btn" mode="md" value="unSettle">*/}
+                    {/*            <IonLabel>*/}
+                    {/*                {*/}
+                    {/*                    data && data.length>0 && <><IonBadge color="danger">{data.length}</IonBadge>&nbsp;</>*/}
+                    {/*                }*/}
+                    {/*                UnSettle*/}
+                    {/*            </IonLabel>*/}
+
+                    {/*        </IonSegmentButton>*/}
+                    {/*        /!*<IonSegmentButton className="seg-btn" mode="md" value="settled">*!/*/}
+                    {/*        /!*    <IonLabel>Settled</IonLabel>*!/*/}
+                    {/*        /!*</IonSegmentButton>*!/*/}
+                    {/*    </IonSegment>*/}
+                    {/*</div>*/}
                     {
-                        segment == 'settles' &&
-                        <InboxList items={settles} onReceive={(v) => {
-                            this.setShowLoading(true)
-                            this.onReceive(v).then(() => {
-                                this.setShowLoading(false)
-                            }).catch(e => {
-                                this.setShowLoading(false)
-                                const err = typeof e == 'string'?e:e.message;
-                                this.setShowToast(true,err)
-                                console.error(e)
-                            });
-                        }}/>
+                        "unSettle" == segment && data && data.length > 0 ?
+                        data.map((v, i) => {
+                            if (v["timestamp"]) {
+                                return <BillList key={i} item={v} onReceive={(v) => {
+                                    this.setShowLoading(true)
+                                    this.onVote(v).then(() => {
+                                        this.setShowLoading(false)
+                                    }).catch(e => {
+                                        const err = typeof e == 'string' ? e : e.message;
+                                        this.setShowToast(true, err)
+                                        this.setShowLoading(false)
+                                        console.error(e)
+                                    })
+                                }
+                                }/>
+                            } else if (v["factor"] && v["factor"]["timestamp"]) {
+                                return <InboxList key={i} item={v} onReceive={(v) => {
+                                    this.setShowLoading(true)
+                                    this.onReceive([v]).then(() => {
+                                        this.setShowLoading(false)
+                                    }).catch(e => {
+                                        this.setShowLoading(false)
+                                        const err = typeof e == 'string' ? e : e.message;
+                                        this.setShowToast(true, err)
+                                        console.error(e)
+                                    });
+                                }}/>
+                            }
+                        }): "unSettle" == segment && <div className="inbox-no-data"><NoneData desc="No data"/></div>
                     }
-                    {
-                        segment == 'bills' &&
-                        <BillList items={bills} onReceive={(v) => {
-                            this.setShowLoading(true)
-                            this.onVote(v).then(()=>{
-                                this.setShowLoading(false)
-                            }).catch(e=>{
-                                const err = typeof e == 'string'?e:e.message;
-                                this.setShowToast(true,err)
-                                this.setShowLoading(false)
-                                console.error(e)
-                            })
-                        }
-                        }/>
-                    }
+
+                    {/*{*/}
+                    {/*    "settled" == segment && settled && settled.length > 0 && settled.map((v,i)=>{*/}
+                    {/*        return  <InboxList key={i} item={v} onReceive={(v) => {*/}
+                    {/*            this.setShowLoading(true)*/}
+                    {/*            this.onReceive([v]).then(() => {*/}
+                    {/*                this.setShowLoading(false)*/}
+                    {/*            }).catch(e => {*/}
+                    {/*                this.setShowLoading(false)*/}
+                    {/*                const err = typeof e == 'string' ? e : e.message;*/}
+                    {/*                this.setShowToast(true, err)*/}
+                    {/*                console.error(e)*/}
+                    {/*            });*/}
+                    {/*        }}/>*/}
+                    {/*    })*/}
+                    {/*}*/}
+
+
                     <IonLoading
                         cssClass='my-custom-class'
                         isOpen={showLoading}

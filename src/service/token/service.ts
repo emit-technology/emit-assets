@@ -1,6 +1,6 @@
 import {IToken} from './interface';
 import {Balance, Token, TokenProtocol} from "../../types";
-import {AccountModel, ChainType} from '@emit-technology/emit-types';
+import {AccountModel, ChainType} from '@emit-technology/emit-lib';
 import selfStorage from "../../common/storage";
 import config from "../../common/config";
 import {runWithLock} from 'localstorage-lock';
@@ -154,7 +154,7 @@ class TokenService implements IToken {
                 if (rest) {
                     for (let factor of rest) {
                         const symbol = utils.formatCategoryString(factor.category);
-                        const key = this._balanceKey(chain, factor.category.field, symbol, account.addresses[chain]);
+                        const key = this._balanceKey(chain, factor.category.supplier, symbol, account.addresses[chain]);
                         const b = utils.fromHexValue(factor.value, 0).toString(10);
                         balance[key] = b;
 

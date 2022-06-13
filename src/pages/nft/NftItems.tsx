@@ -14,7 +14,7 @@ import {arrowBackOutline, chevronBackOutline, linkOutline, scanCircleOutline} fr
 import {NftList} from "../../components/Nft/List";
 import {oRouter} from "../../common/roter";
 import {nftService} from "../../service/nft";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 
 interface Props {
     refresh: number;
@@ -34,7 +34,7 @@ export class NftItems extends React.Component<Props, any> {
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<any>, snapshot?: any) {
-        if (prevProps.refresh != this.props.refresh) {
+        if (prevProps.refresh != this.props.refresh && window.location.hash.indexOf("#/nft")>-1) {
             this.init().catch(e => {
                 console.error(e)
             })

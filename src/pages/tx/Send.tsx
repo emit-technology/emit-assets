@@ -19,8 +19,14 @@ import {
     IonToolbar
 } from '@ionic/react';
 import { Token} from "../../types";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
-import {arrowBackOutline, arrowForwardCircleSharp, chevronForwardOutline, linkOutline} from "ionicons/icons";
+import {ChainType} from '@emit-technology/emit-lib';
+import {
+    arrowBackOutline,
+    arrowForwardCircleSharp,
+    chevronDownOutline,
+    chevronForwardOutline,
+    linkOutline
+} from "ionicons/icons";
 import './index.css';
 import {oRouter} from "../../common/roter";
 import {tokenService} from "../../service/token";
@@ -64,7 +70,7 @@ export class SendPage extends React.Component<Props, State> {
         targetChain: this.props.chain,
         showSelectChain: false,
         crossToken: {},
-        allowance: new BigNumber(0)
+        allowance: new BigNumber(0),
     }
 
     componentDidMount() {
@@ -106,8 +112,9 @@ export class SendPage extends React.Component<Props, State> {
         this.setShowLoading(true);
         // await emitBoxSdk.emitBox.batchSignMsg([{chain:2,msg:{test:1,a:3,b:3}},{chain:2,msg:{test:1,a:3,b:3}},{chain:2,msg:{test:1,a:3,b:3}},{chain:2,msg:{test:1,a:3,b:3}}])
         const ret = await txService.send(chain, receive, amount, token, targetChain)
-        await this.confirm(chain, ret);
-        oRouter.txInfo(chain, ret.transactionHash, ret.blockNumber);
+
+        await this.confirm(chain, ret)
+        oRouter.txInfo(chain,ret.transactionHash,ret.blockNumber);
     }
 
     confirm = async (chain: ChainType, tx: any) => {
@@ -188,9 +195,13 @@ export class SendPage extends React.Component<Props, State> {
         return allowance.toNumber() == 0 && (chain!=targetChain) && utils.isWeb3Chain(chain);
     }
 
+
     render() {
         const {chain, symbol} = this.props;
-        const {token, showLoading, showToast, crossToken,allowance, resourceId, showSelectChain, toastMsg, amount, receive, targetChain} = this.state;
+        const {token, showLoading, showToast, crossToken,allowance,resourceId, showSelectChain, toastMsg, amount, receive, targetChain} = this.state;
+
+        // const fee = utils.fromValue(new BigNumber(gas).multipliedBy(new BigNumber(gasPrice)),18).toString(10);
+
         return (
             <IonPage>
                 <IonHeader collapse="fade">
@@ -217,7 +228,12 @@ export class SendPage extends React.Component<Props, State> {
                                     this.setShowSelectChain(true);
                                 }
                             }}><IonIcon src={linkOutline}
-                                        style={{transform: "translateY(2px)"}}/> {config.chains[targetChain].description}
+                                        style={{transform: "translateY(2px)"}}/>
+                                        &nbsp;{config.chains[targetChain].description}&nbsp;
+                                {
+                                    resourceId && <IonIcon src={chevronDownOutline}
+                                                           style={{transform: "translateY(2px)"}}/>
+                                }
                             </IonBadge></IonCol>
                         </IonRow>
                     </div>
@@ -250,12 +266,24 @@ export class SendPage extends React.Component<Props, State> {
                             <div className="input-d2">{token && token.symbol}</div>
                         </div>
                     </IonItem>
-                    <IonItem lines="none" detail detailIcon={chevronForwardOutline}>
-                        <IonLabel>Fee</IonLabel>
-                        <IonLabel className="ion-text-wrap" slot="end">
-                            <IonText color="medium">{gasService.defaultGas(chain)} {token && token.feeCy}</IonText>
-                        </IonLabel>
-                    </IonItem>
+                    {/*{*/}
+                    {/*    utils.isWeb3Chain(chain) &&*/}
+                    {/*    <IonItem lines="none" detail detailIcon={chevronForwardOutline} onClick={()=>{*/}
+                    {/*        emitBoxSdk.emitBox.calcGasPrice(utils.toHex(25000),chain.valueOf()).then(rest=>{*/}
+                    {/*            this.setState({gasPrice: utils.toValue(rest.result,9).toString(10)})*/}
+                    {/*        }).catch(e=>console.error(e))*/}
+                    {/*    }}>*/}
+                    {/*        <IonLabel>Fee</IonLabel>*/}
+                    {/*        <IonLabel className="ion-text-wrap" slot="end">*/}
+                    {/*            <p>*/}
+                    {/*                <IonText color="medium">{fee} {token && token.feeCy}</IonText>*/}
+                    {/*            </p>*/}
+                    {/*            <p>*/}
+                    {/*                <IonText color="medium">{utils.fromValue(gasPrice,9).toString(10)}GWei * {gas}</IonText>*/}
+                    {/*            </p>*/}
+                    {/*        </IonLabel>*/}
+                    {/*    </IonItem>*/}
+                    {/*}*/}
                     <div style={{padding: "48px 12px"}}>
                         <IonButton expand="block" disabled={!amount || !receive} onClick={() => {
                             this.nextConfirm().then(() => {

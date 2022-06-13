@@ -1,7 +1,7 @@
 import {Cross} from "../index";
 import BigNumber from "bignumber.js";
 import EthContract from "../../EthContract";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 
 const ABI_CROSS = [
     {

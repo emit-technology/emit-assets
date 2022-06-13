@@ -17,7 +17,7 @@ import {
 } from "@ionic/react";
 import {arrowBackOutline} from "ionicons/icons";
 import config from "../../common/config";
-import {ChainType} from '@emit-technology/emit-types'
+import {ChainType} from '@emit-technology/emit-lib'
 import {Token, TokenProtocol} from "../../types";
 import Erc20Contract from "../../contract/erc20/eth";
 import * as web3Utils from 'web3-utils';

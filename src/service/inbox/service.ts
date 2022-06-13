@@ -1,0 +1,47 @@
+import {emitBoxSdk} from "../emit";
+import {ChainType, SettleResp} from "@emit-technology/emit-lib";
+import {crossBillService} from "../cross/bill";
+import {CrossBill} from "../../types/cross";
+
+class InboxService {
+
+    listUnsettle = async (): Promise<Array<SettleResp | CrossBill>> =>{
+        const account = await emitBoxSdk.getAccount();
+        const settles = await emitBoxSdk.emitBox.emitDataNode.getSettles(account.addresses[ChainType.EMIT]);
+        const bills = await crossBillService.list(ChainType.BSC);
+        const data: Array<any> = [];
+        if (bills && bills.length > 0) {
+            data.push(...bills);
+        }
+        // const settled:Array<SettleResp> = [];
+        if (settles && settles.length > 0) {
+            for(let settle of settles){
+                if(settle.settled){
+                    // settled.push(settle)
+                }else{
+                    data.push(settle)
+                }
+            }
+        }
+        data.sort(this._sort)
+        return data;
+    }
+
+    private _sort = (a1: any, b1: any) => {
+        let t1 = 0, t2 = 0, tenYear = 10 * 365 * 24 * 60 * 60 * 100;
+        if (a1["factor"] && a1["factor"]["timestamp"]) {
+            t1 = a1["factor"]["timestamp"];
+        } else {
+            t1 = a1["timestamp"];
+        }
+        if (b1["factor"] && b1["factor"]["timestamp"]) {
+            t2 = b1["factor"]["timestamp"];
+        } else {
+            t2 = b1["timestamp"]
+        }
+        return t2 - t1;
+    }
+
+}
+
+export const inboxService = new InboxService();

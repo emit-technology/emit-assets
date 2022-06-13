@@ -17,10 +17,10 @@ import {
     IonToolbar
 } from '@ionic/react';
 import './Home.css';
-import {AccountModel} from "@emit-technology/emit-types";
+import {AccountModel} from "@emit-technology/emit-lib";
 import {
     arrowDownCircleOutline,
-    arrowUpCircleOutline,
+    arrowUpCircleOutline, chevronDownOutline,
     linkOutline, optionsOutline,
     scanCircleOutline
 } from "ionicons/icons";
@@ -34,10 +34,12 @@ import {emitBoxSdk} from "../service/emit";
 import {utils} from "../common/utils";
 import config from "../common/config";
 import {interVarBalance} from "../common/interVal";
+import {inboxService} from "../service/inbox";
 
 interface Props {
     router: HTMLIonRouterOutletElement | null;
     refresh: number
+    onUpdate: (settles:number)=>void;
 }
 
 interface State {
@@ -93,7 +95,7 @@ export class Home extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
-        if (prevProps.refresh != this.props.refresh) {
+        if (prevProps.refresh != this.props.refresh && window.location.hash == "#/tab/home") {
             this.init().catch(e => console.error(e));
         }
     }
@@ -105,6 +107,10 @@ export class Home extends React.Component<Props, State> {
         this.setState({
             allTokens: tks
         })
+        inboxService.listUnsettle().then(data=>{
+            this.props.onUpdate(data.length)
+        }).catch(e=>{console.error(e)})
+
     }
 
     initBalance = async (act?: AccountModel) => {
@@ -182,13 +188,14 @@ export class Home extends React.Component<Props, State> {
                                     this.setShowLoading(false)
                                 });
                             }}>
-                                <IonIcon slot="start" icon={linkOutline}/> EMIT-Wallet
+                                <IonIcon slot="start" icon={linkOutline}/>{account && account.name ? account.name : "EMIT-Account"}
+                                <IonIcon slot="end" icon={chevronDownOutline}/>
                             </IonButton>
                         </IonButtons>
                         <IonTitle className="ion-text-center" onClick={() => {
 
                         }}>
-                            {account && account.name}
+                            EMIT-Assets
                             <div><small><IonText color="medium">{addr && utils.ellipsisStr(addr)}</IonText></small>
                             </div>
                         </IonTitle>

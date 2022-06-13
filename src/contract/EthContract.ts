@@ -16,7 +16,7 @@
  along with E.M.I.T. . If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import {emitBoxSdk} from "../service/emit";
 
 const Contract = require('web3-eth-contract');

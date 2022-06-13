@@ -18,7 +18,7 @@ import {
 import {arrowBackOutline, arrowDownOutline, arrowUpOutline, timeOutline} from "ionicons/icons";
 import './index.css';
 import {Token, TokenProtocol, TxResp} from "../../types";
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import {oRouter} from "../../common/roter";
 import {emitBoxSdk} from "../../service/emit";
 import {txService} from "../../service/tx";
@@ -78,7 +78,11 @@ export class TxList extends React.Component<Props, State> {
                     <div className="token-tx-head">
                         <div className="token-icon">{
                             token && token.image? <img src={token.image}/>:<div>{token && token.protocol.toUpperCase()}</div>
-                        }</div>
+                        }
+                            <div style={{position:"absolute",bottom:"-8px",right:0}}>
+                                <img src={`./assets/img/chain/${chain.valueOf()}.png`} width="15"/>
+                            </div>
+                        </div>
                         <div className="token-balance">{token ? utils.fromValue(token.balance,0).toFixed(6,1) : "0.000"}</div>
                     </div>
                     <IonSegment className="segment" mode="md" value={segment} onIonChange={(e)=>{

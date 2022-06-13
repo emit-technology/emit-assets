@@ -4,7 +4,7 @@ import {arrowBackOutline, copyOutline, shareOutline} from "ionicons/icons";
 import './index.css';
 import {QRCodeSVG} from 'qrcode.react';
 import {oRouter} from "../../common/roter";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import copy from 'copy-to-clipboard';
 
 interface Props {

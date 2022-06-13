@@ -3,7 +3,7 @@ import {IonPage, IonContent, IonHeader,IonChip,IonButton, IonText,IonTitle,IonIn
 import {arrowBackOutline, chevronBackOutline, chevronForwardOutline} from "ionicons/icons";
 import './index.css';
 import {oRouter} from "../../common/roter";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 interface Props {
     refresh: number;
     chain: ChainType;

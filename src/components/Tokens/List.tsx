@@ -56,6 +56,9 @@ export const TokenList: React.FC<Props> = ({tokens,doReorder,onSelect, onSend,
                     }}>
                         <IonAvatar className="avatar" slot="start">
                             {v.image ? <img src={v.image}/> : <div>{v.protocol.toUpperCase()}</div>}
+                            <div style={{position:"absolute",bottom:"-8px",right:0}}>
+                                <img src={`./assets/img/chain/${v.chain.valueOf()}.png`} width="15"/>
+                            </div>
                         </IonAvatar>
                         <IonLabel className="ion-text-wrap">
                             <div style={{fontWeight: 700}}>{v.name}</div>

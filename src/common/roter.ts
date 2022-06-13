@@ -1,4 +1,4 @@
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import {interVarBalance} from "./interVal";
 
 class Router {

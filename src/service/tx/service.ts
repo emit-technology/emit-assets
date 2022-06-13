@@ -1,6 +1,6 @@
 import {ITx} from './interface';
 import { Token, TxDetail, TxInfo, TxRecord, TxResp} from "../../types";
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import rpc from "../../rpc";
 import {emitBoxSdk} from "../emit";
 import {utils} from "../../common/utils";
@@ -226,7 +226,7 @@ class TxService implements ITx {
                     toAddress = token.contractAddress;
                 }
             }
-            return this.web3Send(chain, toAddress, amount, token.decimal, data)
+            return this._web3Send(chain, toAddress, amount, token.decimal, data)
         } else if (chain == ChainType.EMIT) {
             let dataSets: Array<DataSet> = [];
             let target = toAddress;
@@ -254,7 +254,7 @@ class TxService implements ITx {
         }
     }
 
-    web3Send = async (chain: ChainType, receive: string, amount: string, decimal: number, data?: string) => {
+    _web3Send = async (chain: ChainType, receive: string, amount: string, decimal: number, data?: string) => {
         // const account = await this.getAccount();
         const addresses = await emitBoxSdk.web3[chain].eth.getAccounts()
         const from = addresses[0];

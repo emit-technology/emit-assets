@@ -1,4 +1,4 @@
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 
 export interface Token {
     name: string;

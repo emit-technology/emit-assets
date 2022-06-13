@@ -1,7 +1,7 @@
 import rpc from "../../rpc";
 import config from "../../common/config";
 import {CrossConfig, CrossResource, CrossToken} from "../../types/cross";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 class Config {
 
     private _cfg: CrossConfig;

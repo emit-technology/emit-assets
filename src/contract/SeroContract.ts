@@ -17,7 +17,7 @@
  */
 
 import rpc from "../rpc";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 const serojs = require('serojs');
 
 class SeroContract{

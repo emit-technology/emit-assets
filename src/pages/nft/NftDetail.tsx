@@ -13,7 +13,7 @@ import {
 } from "@ionic/react";
 import {arrowBackOutline, chevronBackOutline, linkOutline, scanCircleOutline} from "ionicons/icons";
 import {nftService} from "../../service/nft";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import {NftStandard} from "../../types/nft";
 import {NftInfo} from "../../components/Nft/Info";
 import {oRouter} from "../../common/roter";
@@ -39,7 +39,7 @@ export class NftDetail extends React.Component<Props, State>{
     }
 
     componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<any>, snapshot?: any) {
-        if (prevProps.refresh != this.props.refresh) {
+        if (prevProps.refresh != this.props.refresh && window.location.hash.indexOf("#/nft")>-1) {
             this.init().catch(e => {
                 console.error(e)
             })

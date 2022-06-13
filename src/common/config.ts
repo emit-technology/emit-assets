@@ -1,5 +1,5 @@
 import {NftStandard, Token, TokenProtocol} from "../types";
-import {ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
 import {INetwork} from "@emit-technology/emit-account-node-sdk";
 
 /**

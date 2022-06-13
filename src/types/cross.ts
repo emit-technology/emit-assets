@@ -1,4 +1,5 @@
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
+import {ChainType} from '@emit-technology/emit-lib';
+import {BlockWrapped} from "@emit-technology/emit-lib";
 
 export interface CrossConfig {
     [assetType: string]: AssetItem
@@ -55,4 +56,5 @@ export interface CrossBill {
     timestamp: number;
     symbol: string;
     erc20: string
+    depositBlock: null | BlockWrapped
 }

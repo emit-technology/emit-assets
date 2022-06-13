@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js';
-import {Category, Factor} from "@emit-technology/emit-account-node-sdk";
+import {Category, Factor} from "@emit-technology/emit-lib";
 import config from "./config";
 import {Token, TokenProtocol} from "../types";
-import {AccountModel,ChainType} from '@emit-technology/emit-types';
-import web3Utils from "web3-utils";
-import {checkSumAddress, fromAddressBytes} from 'emit-lib/lib/wallet/address';
+import {AccountModel,ChainType} from '@emit-technology/emit-lib';
+import web3Utils, {toChecksumAddress} from "web3-utils";
+import {checkSumAddress, fromAddressBytes} from '@emit-technology/emit-lib';
 
 
 const format = require('date-format');
@@ -66,7 +66,7 @@ export const utils = {
         }
         return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
     },
-    toHex(value: string | number | BigNumber, decimal?: number) {
+    toHex(value: string | number | BigNumber, decimal?: number):string {
         if (value === "0x") {
             return "0x0"
         }
@@ -88,10 +88,10 @@ export const utils = {
     },
 
     formatCategoryString: (category: Category): string => {
-        const name = utils.fromHex(category.name);
+        const name = utils.fromHex(category.symbol);
         if (
-            category.field === config.chains[ChainType.EMIT].nodeAddress &&
-            category.name ===
+            category.supplier === config.chains[ChainType.EMIT].nodeAddress &&
+            category.symbol ===
             "0000000000000000000000000000000000000000000000000000000000000000"
         ) {
             return "EASTER";
@@ -104,7 +104,7 @@ export const utils = {
             symbol: utils.formatCategoryString(factor.category),
             name: utils.formatCategoryString(factor.category),
             decimal: 18,
-            contractAddress: factor.category.field,
+            contractAddress: factor.category.supplier,
             protocol: TokenProtocol.EMIT,
             chain: ChainType.EMIT,
             balance: utils.fromHexValue(factor.value, 0).toString(10)
@@ -123,8 +123,9 @@ export const utils = {
 
     token2Category: (token: Token): Category => {
         return {
-            name: utils.strToHex(token.symbol),
-            field: token.contractAddress
+            symbol: Buffer.from(token.symbol).toString("hex"),
+            supplier: token.contractAddress,
+            id: ""
         }
     },
 
@@ -207,6 +208,11 @@ export const utils = {
                 resolve(true)
             }, defaultSecond * 1000)
         })
+    },
+
+    toWeb3CheckAddress : (address:string)=>{
+        return toChecksumAddress(address)
     }
+
 
 }

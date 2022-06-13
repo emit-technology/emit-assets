@@ -41,6 +41,7 @@ setupIonicReact({
 
 const App: React.FC = () => {
     const routerRef = useRef<HTMLIonRouterOutletElement | null>(null);
+    const [unSettleNum,setUnSettle] = useState(0)
     return (
         <div className="page">
             <div className="page-inner">
@@ -101,8 +102,12 @@ const App: React.FC = () => {
                             <Route path="/tab" render={(props)=>{
                                 return <IonTabs>
                                     <IonRouterOutlet ref={routerRef}>
-                                        <Route exact path="/tab/home" render={()=><Home refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>}/>
-                                        <Route exact path="/tab/inbox" render={()=><InboxPage refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>}/>
+                                        <Route exact path="/tab/home" render={()=><Home  onUpdate={(n)=>{
+                                            setUnSettle(n)
+                                        }} refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>}/>
+                                        <Route exact path="/tab/inbox" render={()=><InboxPage onUpdate={(n)=>{
+                                            setUnSettle(n)
+                                        }} refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>} />
                                         <Route exact path="/tab/settings" render={()=><Settings refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>}/>
                                     </IonRouterOutlet>
                                     <IonTabBar slot="bottom" style={{minHeight:"70px"}} selectedTab="assets">
@@ -114,6 +119,7 @@ const App: React.FC = () => {
                                         <IonTabButton tab="inbox" href="/tab/inbox">
                                             <IonIcon icon={cubeOutline} />
                                             <IonLabel>Inbox</IonLabel>
+                                            {unSettleNum>0 && <IonBadge color="danger">{unSettleNum}</IonBadge>}
                                         </IonTabButton>
 
                                         <IonTabButton tab="settings" href="/tab/settings">
