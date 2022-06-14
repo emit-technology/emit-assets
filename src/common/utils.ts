@@ -64,7 +64,7 @@ export const utils = {
                 break;
             }
         }
-        return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
+        return new BigNumber(n ).dividedBy(new BigNumber(si[i].value)).toFixed(digits,1).replace(rx, "$1") + si[i].symbol;
     },
     toHex(value: string | number | BigNumber, decimal?: number):string {
         if (value === "0x") {

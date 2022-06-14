@@ -205,7 +205,7 @@ const development: IConfig = {
                 contract: "https://bscscan.com/address/{0}",
                 block: "https://bscscan.com/block/{0}"
             },
-            network: {nodeUrl: "https://node-bsc.bangs.network", chainId: "1", chainType: ChainType.ETH},
+            network: {nodeUrl: "https://node-bsc.bangs.network", chainId: "1", chainType: ChainType.BSC},
             common: {
                 baseChain: "mainnet",
                 customer: {

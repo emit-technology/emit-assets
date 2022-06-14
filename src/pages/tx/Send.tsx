@@ -248,17 +248,23 @@ export class SendPage extends React.Component<Props, State> {
                             })
                         }} autofocus className="input-addr"/>
                     </IonItem>
+                    <div style={{padding: "0 12px"}}>
+                        <IonRow>
+                            <IonCol size="3">Amount</IonCol>
+                            <IonCol size="7"><span className="balance-span"><IonText
+                                color="medium">Available {token && utils.nFormatter(token.balance, 4)}</IonText></span></IonCol>
+                            <IonCol size="2"><span className="btn-max" onClick={(e)=>{
+                                e.preventDefault()
+                                this.setState({amount: token.balance})
+                            }}>MAX</span></IonCol>
+                        </IonRow>
+                    </div>
                     <IonItem lines="none">
                         <IonLabel position="stacked">
-                            <IonRow>
-                                <IonCol size="3">Amount</IonCol>
-                                <IonCol size="7"><span className="balance-span"><IonText
-                                    color="medium">Available {token && utils.nFormatter(token.balance, 4)}</IonText></span></IonCol>
-                                <IonCol size="2"><span className="btn-max">MAX</span></IonCol>
-                            </IonRow>
+
                         </IonLabel>
                         <div className="input-d1">
-                            <IonInput placeholder="0.00" clearOnEdit color="primary" onIonChange={(e) => {
+                            <IonInput placeholder="0.00" value={amount} clearOnEdit color="primary" onIonChange={(e) => {
                                 this.setState({
                                     amount: e.detail.value
                                 })

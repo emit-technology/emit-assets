@@ -83,19 +83,19 @@ export const AddTokenModal:React.FC<Props> = ({onClose,onOk})=>{
                 </IonItem>
                 <IonItem>
                     <IonLabel position="stacked">Symbol</IonLabel>
-                    <IonInput value={symbol} onIonChange={(e)=>{
+                    <IonInput disabled value={symbol} onIonChange={(e)=>{
                         setSymbol(e.detail.value);
                     }}/>
                 </IonItem>
                 <IonItem>
                     <IonLabel position="stacked">Name</IonLabel>
-                    <IonInput value={name}  onIonChange={(e)=>{
+                    <IonInput disabled value={name}  onIonChange={(e)=>{
                         setName(e.detail.value);
                     }}/>
                 </IonItem>
                 <IonItem>
                     <IonLabel position="stacked">Decimal</IonLabel>
-                    <IonInput value={decimal} placeholder="18" onIonChange={(e)=>{
+                    <IonInput disabled value={decimal} placeholder="18" onIonChange={(e)=>{
                         setDecimal(e.detail.value);
                     }}/>
                 </IonItem>

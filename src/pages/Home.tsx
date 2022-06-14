@@ -199,11 +199,11 @@ export class Home extends React.Component<Props, State> {
                             <div><small><IonText color="medium">{addr && utils.ellipsisStr(addr)}</IonText></small>
                             </div>
                         </IonTitle>
-                        <IonButtons slot="end">
-                            <IonAvatar className="avatar" style={{margin: "0 12px 0 0"}}>
-                                <IonIcon src={scanCircleOutline} size="large"/>
-                            </IonAvatar>
-                        </IonButtons>
+                        {/*<IonButtons slot="end">*/}
+                        {/*    <IonAvatar className="avatar" style={{margin: "0 12px 0 0"}}>*/}
+                        {/*        <IonIcon src={scanCircleOutline} size="large"/>*/}
+                        {/*    </IonAvatar>*/}
+                        {/*</IonButtons>*/}
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen>

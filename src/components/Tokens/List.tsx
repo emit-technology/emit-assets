@@ -72,7 +72,7 @@ export const TokenList: React.FC<Props> = ({tokens,doReorder,onSelect, onSend,
                                onHide(!e.detail.checked,v)
                             }}/>) :
                                 <IonLabel slot="end" className="ion-text-wrap ion-text-right">
-                                    <div className="b-value">{v.balance?utils.nFormatter(v.balance,3):"0.000"}</div>
+                                    <div className="b-value">{v.balance?utils.nFormatter(v.balance,4):"0.000"}</div>
                                     <div>
                                         <IonText color="medium">
                                             {utils.ellipsisStr(v.symbol,8)}
