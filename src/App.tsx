@@ -100,7 +100,7 @@ const App: React.FC = () => {
                                 <Redirect to="/tab/home"/>
                             </Route>
                             <Route path="/tab" render={(props)=>{
-                                return <IonTabs>
+                                return <IonTabs >
                                     <IonRouterOutlet ref={routerRef}>
                                         <Route exact path="/tab/home" render={()=><Home  onUpdate={(n)=>{
                                             setUnSettle(n)

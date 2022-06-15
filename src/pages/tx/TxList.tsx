@@ -12,7 +12,7 @@ import {
     IonRow,
     IonSegment,
     IonSegmentButton,
-    IonTitle,
+    IonTitle,IonInfiniteScroll,IonInfiniteScrollContent,
     IonToolbar
 } from '@ionic/react';
 import {arrowBackOutline, arrowDownOutline, arrowUpOutline, timeOutline} from "ionicons/icons";
@@ -26,6 +26,7 @@ import {tokenService} from "../../service/token";
 import {NoneData} from "../../components/Data/None";
 import {utils} from "../../common/utils";
 import config from "../../common/config";
+import rpc from "../../../../../emit-wallet/src/rpc";
 
 interface Props {
     refresh: number;
@@ -37,13 +38,17 @@ interface Props {
 interface State {
     txs?: TxResp
     token?: Token
-    segment:string
+    segment: string
+    pageSize: number
+    pageNo: number
 }
 
 export class TxList extends React.Component<Props, State> {
 
     state: State = {
-        segment: "activity"
+        segment: "activity",
+        pageNo: 1,
+        pageSize: 15
     }
 
     componentDidMount() {
@@ -55,9 +60,30 @@ export class TxList extends React.Component<Props, State> {
 
     init = async () => {
         const {chain, symbol,tokenAddress} = this.props;
-        const list = await txService.list(chain, symbol, 0, 10,tokenAddress);
+        const {pageSize} = this.state;
+        const list = await txService.list(chain, symbol, 1, pageSize,tokenAddress);
         const token = await tokenService.getTokenBalance(chain, symbol,tokenAddress);
         this.setState({txs: list, token: token})
+    }
+
+    loadMore = async (event:any)=>{
+        const {chain, symbol,tokenAddress} = this.props;
+        const {pageNo,pageSize,txs} = this.state;
+        const nextPage = pageNo + 1;
+        const rest = await txService.list(chain, symbol,nextPage , pageSize,tokenAddress);
+        rest.data = txs.data.concat(rest.data);
+
+        if(rest && rest.total>0){
+            if(rest.data.length == 0){
+                event.target.disabled = true;
+            }else{
+                this.setState({
+                    pageNo:nextPage,
+                    txs:rest,
+                })
+            }
+        }
+        event.target.complete();
     }
 
     render() {
@@ -167,6 +193,14 @@ export class TxList extends React.Component<Props, State> {
                                 }
                             </div>
                     }
+                    <IonInfiniteScroll onIonInfinite={(e)=>this.loadMore(e)}>
+                        <IonInfiniteScrollContent
+                            loadingSpinner="bubbles"
+                            loadingText="Loading more..."
+                        >
+                        </IonInfiniteScrollContent>
+                    </IonInfiniteScroll>
+
                     <div className="token-tx-bt">
                         <IonRow>
                             <IonCol><IonButton expand="block" onClick={() => {

@@ -26,7 +26,7 @@ class TxService implements ITx {
 
     }
 
-    list = async (chain: ChainType, symbol: string, pageSize: number, pageNo: number,tokenAddress:string): Promise<TxResp> => {
+    list = async (chain: ChainType, symbol: string, pageNo: number,  pageSize: number,tokenAddress:string): Promise<TxResp> => {
         const account = await emitBoxSdk.getAccount();
         const address = account.addresses[chain];
         if (utils.canUseEmitAccountNode(chain)) {
