@@ -255,9 +255,10 @@ class TxService implements ITx {
     }
 
     _web3Send = async (chain: ChainType, receive: string, amount: string, decimal: number, data?: string) => {
-        // const account = await this.getAccount();
-        const addresses = await emitBoxSdk.web3[chain].eth.getAccounts()
-        const from = addresses[0];
+        const account = await emitBoxSdk.getAccount();
+        // const addresses = await emitBoxSdk.web3[chain].eth.getAccounts()
+        const from = account.addresses[chain];
+        emitBoxSdk.emitBox.setSelectedAddress(from);
         const txConfig = {
             from: from,
             to: receive,

@@ -16,7 +16,7 @@ import {
     checkmarkCircleOutline, copyOutline,
 } from "ionicons/icons";
 import './index.css';
-import { TxDetail} from "../../types";
+import {Token, TxDetail} from "../../types";
 import {ChainType} from '@emit-technology/emit-lib';
 import {oRouter} from "../../common/roter";
 import {QRCodeSVG} from 'qrcode.react';
@@ -26,6 +26,8 @@ import config from "../../common/config";
 import {emitBoxSdk} from "../../service/emit";
 import {txService} from "../../service/tx";
 import BigNumber from "bignumber.js";
+import {TokenIcon} from "../../components/Tokens/TokenIcon";
+import copy from "copy-to-clipboard";
 
 interface Props {
     refresh: number;
@@ -43,7 +45,7 @@ interface State {
 interface TxDisplay {
     from: string;
     to: Array<string>;
-    amountWithCy: Array<string>;
+    amountWithCy: Array<AmountWithCy>;
     txHash: string;
     time: string;
     type: string;
@@ -52,6 +54,11 @@ interface TxDisplay {
     gasLimit: string;
     gasPrice: string;
     num:number
+}
+
+interface AmountWithCy{
+    amountDesc:string;
+    token:Token
 }
 
 export class TxInfo extends React.Component<Props, State> {
@@ -67,31 +74,57 @@ export class TxInfo extends React.Component<Props, State> {
     _convertToTxDisplay = async (txDetail: TxDetail): Promise<TxDisplay> => {
         const account = await emitBoxSdk.getAccount();
         const {chain} = this.props;
-        let type = "", amount = [];
+        let type = "", amount:Array<AmountWithCy> = [];
 
         const address = account.addresses[chain];
+        const toAddress:Array<string> = [];
         if (txDetail.records) {
-            const records = txDetail.records.filter(v => {
-                if (v.address.toLowerCase() == address.toLowerCase()) {
-                    return v
-                }
-            })
-            if (records && records.length > 0) {
-                for (let record of records) {
-                    if(new BigNumber(record.amount).toNumber() == 0 ){
-                        continue
+            //from
+            {
+                const records = txDetail.records.filter(v => {
+                    if (v.address.toLowerCase() == address.toLowerCase()) {
+                        return v
                     }
-                    const token = await tokenService.info(chain, record.currency);
-                    const value = utils.fromValue(record.amount, token.decimal);
-                    const sym = value.toNumber()>0?"+ ":""
-                    amount.push(`${sym}${value.toString(10)} ${record.currency}`)
-                    type = value.toNumber() > 0 ? "Receive" : "Sent";
+                })
+                if (records && records.length > 0) {
+                    for (let record of records) {
+                        if(new BigNumber(record.amount).toNumber() == 0 ){
+                            continue
+                        }
+                        const token = await tokenService.info(chain, record.currency);
+                        const value = utils.fromValue(record.amount, token.decimal);
+                        const sym = value.toNumber()>0?"+ ":""
+                        amount.push({token:token,amountDesc:`${sym}${value.toString(10)} ${record.currency}`})
+                        type = value.toNumber() > 0 ? "Receive" : "Sent";
+                    }
                 }
+            }
+            {
+
+                const records = txDetail.records.filter(v => {
+                    if (v.address.toLowerCase() != address.toLowerCase()) {
+                        return v
+                    }
+                })
+                if (records && records.length > 0) {
+                    for (let record of records) {
+                        if(new BigNumber(record.amount).toNumber() == 0 ){
+                            continue
+                        }
+                        toAddress.push(record.address)
+                    }
+                }
+            }
+        }
+        let addrs:Array<string> = [];
+        for(let amt of amount){
+            if(txDetail.toAddress && txDetail.toAddress.length>0){
+               addrs = txDetail.toAddress.filter(v=> v.toLowerCase() != amt.token.contractAddress.toLowerCase())
             }
         }
         return {
             from: txDetail.fromAddress,
-            to: txDetail.toAddress,
+            to: addrs.concat(toAddress),
             amountWithCy: amount,
             txHash: txDetail.txHash,
             time: utils.dateFormat(new Date(txDetail.timestamp * 1000)),
@@ -122,6 +155,7 @@ export class TxInfo extends React.Component<Props, State> {
     }
     render() {
         const {txDetail,showToast,toastMsg} = this.state;
+        const {chain} = this.props;
         return (
             <IonPage>
                 <IonHeader collapse="fade">
@@ -135,14 +169,17 @@ export class TxInfo extends React.Component<Props, State> {
                 <IonContent fullscreen scrollY>
                     <div className="token-tx-head">
                         <div className="token-icon">
-                            <IonIcon src={checkmarkCircleOutline} size="large"/>
+                            <IonIcon src={checkmarkCircleOutline} size="large"/> <span className="token-tx-type">{txDetail && txDetail.type}</span>
                         </div>
-                        <div><span className="token-tx-type">{txDetail && txDetail.type}</span></div>
-                        <div className="token-balance">{
-                            txDetail && txDetail.amountWithCy.map((v, i) => {
-                                return <div key={i}>{v}</div>
-                            })
-                        }</div>
+                        <div className="token-balance">
+                            {
+                                txDetail && txDetail.amountWithCy.map((v, i) => {
+                                    return <div key={i}>
+                                        <TokenIcon token={v.token}/>{v.amountDesc}
+                                    </div>
+                                })
+                            }
+                        </div>
                         <div>
                             <IonText color="medium">{txDetail && txDetail.time}</IonText>
                         </div>
@@ -156,10 +193,18 @@ export class TxInfo extends React.Component<Props, State> {
                                     </IonCol>
                                     <IonCol size="9">
                                         <div onClick={()=>{
-                                            this.setShowToast(true,"Copied to clipboard!")
+                                            if(utils.isWeb3Chain(chain)){
+                                                //@ts-ignore
+                                                window.open(config.chains[chain].explorer.tx.format(txDetail.txHash))
+                                            }
                                         }}>
                                             <IonText>{txDetail && txDetail.txHash}</IonText>
-                                            &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}/>
+                                            &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}  onClick={(e)=>{
+                                                e.stopPropagation();
+                                            copy(txDetail.txHash)
+                                            copy(txDetail.txHash)
+                                            this.setShowToast(true,"Copied to clipboard!")
+                                        }}/>
                                         </div>
                                     </IonCol>
                                 </IonRow>
@@ -172,7 +217,20 @@ export class TxInfo extends React.Component<Props, State> {
                                         <div><IonText color="medium">From</IonText></div>
                                     </IonCol>
                                     <IonCol size="9">
-                                        <div><IonText>{txDetail && txDetail.from}</IonText></div>
+                                        <div onClick={()=>{
+                                            if(utils.isWeb3Chain(chain)){
+                                                //@ts-ignore
+                                                window.open(config.chains[chain].explorer.address.format(txDetail.from))
+                                            }
+                                        }}>
+                                            <IonText>{txDetail && txDetail.from}</IonText>
+                                            &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}  onClick={(e)=>{
+                                                e.stopPropagation();
+                                                copy(txDetail.from)
+                                                copy(txDetail.from)
+                                                this.setShowToast(true,"Copied to clipboard!")
+                                            }}/>
+                                        </div>
                                     </IonCol>
                                 </IonRow>
                             </IonLabel>
@@ -186,8 +244,19 @@ export class TxInfo extends React.Component<Props, State> {
                                     <IonCol size="9">
                                         {
                                             txDetail && txDetail.to.map((v, i) => {
-                                                return <div key={i}>
+                                                return <div key={i}  onClick={()=>{
+                                                    if(utils.isWeb3Chain(chain)){
+                                                        //@ts-ignore
+                                                        window.open(config.chains[chain].explorer.address.format(v))
+                                                    }
+                                                }}>
                                                     <IonText>{v}</IonText>
+                                                    &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}  onClick={(e)=>{
+                                                    e.stopPropagation();
+                                                    copy(v)
+                                                    copy(v)
+                                                    this.setShowToast(true,"Copied to clipboard!")
+                                                }}/>
                                                 </div>
                                             })
                                         }
@@ -207,24 +276,12 @@ export class TxInfo extends React.Component<Props, State> {
                                 </IonRow>
                             </IonLabel>
                         </IonItem>
-                        <IonItem>
-                            <IonLabel className="ion-text-wrap">
-                                <IonRow>
-                                    <IonCol size="3">
-                                        <div><IonText color="medium">Fee</IonText></div>
-                                    </IonCol>
-                                    <IonCol size="9">
-                                        <div><IonText>{txDetail && txDetail.fee}</IonText></div>
-                                        <IonText color="medium">
-                                            <div>({txDetail && txDetail.gasPrice} * {txDetail && txDetail.gasLimit})</div>
-                                        </IonText>
-                                    </IonCol>
-                                </IonRow>
-                            </IonLabel>
-                        </IonItem>
+                        {
+                            utils.isWeb3Chain(this.props.chain)
+                        }
                     </div>
                     {
-                        txDetail && txDetail.url &&
+                        txDetail &&  utils.isWeb3Chain(this.props.chain) && txDetail.url &&
                         <div className="receive-qr" style={{background: "#fff"}}>
                             <div className="viewa" onClick={() => {
                                 window.open(txDetail.url)

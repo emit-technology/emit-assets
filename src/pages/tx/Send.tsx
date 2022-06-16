@@ -110,11 +110,18 @@ export class SendPage extends React.Component<Props, State> {
         }
 
         this.setShowLoading(true);
-        // await emitBoxSdk.emitBox.batchSignMsg([{chain:2,msg:{test:1,a:3,b:3}},{chain:2,msg:{test:1,a:3,b:3}},{chain:2,msg:{test:1,a:3,b:3}},{chain:2,msg:{test:1,a:3,b:3}}])
+
         const ret = await txService.send(chain, receive, amount, token, targetChain)
 
-        await this.confirm(chain, ret)
-        oRouter.txInfo(chain,ret.transactionHash,ret.blockNumber);
+        if(this.needApprove()){
+            const allowance:any = await this.confirmApprove(chain);
+            this.setState({
+                allowance: new BigNumber(allowance)
+            })
+        }else{
+            await this.confirm(chain, ret)
+            oRouter.txInfo(chain,ret.transactionHash,ret.blockNumber);
+        }
     }
 
     confirm = async (chain: ChainType, tx: any) => {
@@ -141,6 +148,34 @@ export class SendPage extends React.Component<Props, State> {
             })
         }
         return true
+    }
+
+    confirmApprove = async (chain: ChainType) => {
+        const {token} = this.state;
+        if (utils.isWeb3Chain(chain)) {
+            let count = 0;
+            return new Promise((resolve, reject) => {
+                let interId;
+                interId = setInterval(() => {
+                    count++;
+                    if (count > 60) {
+                        clearInterval(interId);
+                        reject("Pending timeout!")
+                    } else {
+                        if (utils.isWeb3Chain(chain) && utils.isErc20Token(token)) {
+                            crossConfig.getTokenContractHandle(chain).then(handleAddress=>{
+                                tokenService.allowance(token, handleAddress).then((allowance:any)=>{
+                                   if(new BigNumber(allowance).toNumber()>0){
+                                       resolve(allowance)
+                                   }
+                                });
+                            })
+                        }
+                    }
+                }, 1500)
+            })
+        }
+        return 0
     }
 
     setShowLoading = (f: boolean) => {

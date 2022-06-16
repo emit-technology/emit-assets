@@ -6,6 +6,9 @@ import {QRCodeSVG} from 'qrcode.react';
 import {oRouter} from "../../common/roter";
 import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import copy from 'copy-to-clipboard';
+import config from "../../common/config";
+import {tokenService} from "../../service/token";
+import {TokenIcon} from "../../components/Tokens/TokenIcon";
 
 interface Props {
     refresh: number;
@@ -22,10 +25,23 @@ export class Receive extends React.Component<Props, any> {
             toastMsg: msg
         })
     }
+    componentDidMount() {
+        this.init().catch(e=>{console.error(e)})
+    }
+
+    init = async ()=>{
+        const {chain,token,address} = this.props;
+
+        const oToken = await tokenService.info(chain,token);
+
+        this.setState({
+            oToken:oToken
+        })
+    }
     render() {
 
         const {chain,address,token} = this.props;
-        const {showToast ,toastMsg} = this.state;
+        const {showToast ,toastMsg,oToken} = this.state;
         return (
             <IonPage>
                 <IonHeader collapse="fade">
@@ -35,6 +51,7 @@ export class Receive extends React.Component<Props, any> {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>
+                    {oToken && <TokenIcon token={oToken}/>}
                     <div className="receive-qr">
                         <div>Scan the address QR code to transfer</div>
                         <div className="qr-1">
@@ -42,6 +59,10 @@ export class Receive extends React.Component<Props, any> {
                                 <QRCodeSVG value={address} size={200} />
                             </div>
                         </div>
+                        {/*<div style={{padding: "0 0 12px"}}>*/}
+                        {/*    <img src={`./assets/img/chain/${chain}.png`} width={30} style={{transform: "translateY(8px)"}}/>*/}
+                        {/*    &nbsp;{config.chains[chain].description}*/}
+                        {/*</div>*/}
                     </div>
                     <div className="ion-text-center" style={{padding:"0 24px"}}>
                         <p><small><IonText color="medium">Receiving Address</IonText></small></p>

@@ -15,10 +15,10 @@ import {
     IonTitle,IonInfiniteScroll,IonInfiniteScrollContent,
     IonToolbar
 } from '@ionic/react';
-import {arrowBackOutline, arrowDownOutline, arrowUpOutline, timeOutline} from "ionicons/icons";
+import {arrowBackOutline, arrowDownOutline, arrowUpOutline, openOutline, timeOutline} from "ionicons/icons";
 import './index.css';
 import {Token, TokenProtocol, TxResp} from "../../types";
-import {ChainType} from '@emit-technology/emit-lib';
+import {AccountModel, ChainType} from '@emit-technology/emit-lib';
 import {oRouter} from "../../common/roter";
 import {emitBoxSdk} from "../../service/emit";
 import {txService} from "../../service/tx";
@@ -41,6 +41,7 @@ interface State {
     segment: string
     pageSize: number
     pageNo: number
+    account?:AccountModel
 }
 
 export class TxList extends React.Component<Props, State> {
@@ -63,7 +64,8 @@ export class TxList extends React.Component<Props, State> {
         const {pageSize} = this.state;
         const list = await txService.list(chain, symbol, 1, pageSize,tokenAddress);
         const token = await tokenService.getTokenBalance(chain, symbol,tokenAddress);
-        this.setState({txs: list, token: token})
+        const account = await emitBoxSdk.getAccount();
+        this.setState({txs: list, token: token,account:account})
     }
 
     loadMore = async (event:any)=>{
@@ -88,7 +90,7 @@ export class TxList extends React.Component<Props, State> {
 
     render() {
         const {chain, symbol,tokenAddress} = this.props;
-        const {txs, token,segment} = this.state;
+        const {txs, token,segment,account} = this.state;
         return (
             <IonPage>
                 <IonHeader collapse="fade">
@@ -97,7 +99,12 @@ export class TxList extends React.Component<Props, State> {
                             oRouter.back();
                         }}/>
                         <IonTitle>{symbol}</IonTitle>
-                        <IonIcon size="large" src={timeOutline} slot="end" style={{paddingRight: "12px"}}/>
+                        {
+                            account && utils.isWeb3Chain(chain) && <IonIcon size="large" src={openOutline} slot="end" style={{paddingRight: "12px"}} onClick={()=>{
+                                //@ts-ignore
+                                window.open(config.chains[chain].explorer.address.format(account.addresses[chain]))
+                            }}/>
+                        }
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>

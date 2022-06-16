@@ -54,3 +54,10 @@
     --border-color: #f7f7f7;
     --padding-top: 6px;
 }
+
+.flex-center{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
