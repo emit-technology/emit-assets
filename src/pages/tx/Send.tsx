@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+    IonAvatar,
     IonBadge,
     IonButton,
     IonCol,
@@ -40,6 +41,7 @@ import {crossConfig} from "../../service/cross/config";
 import {CrossToken} from "../../types/cross";
 import BigNumber from "bignumber.js";
 import {txService} from "../../service/tx";
+import {TokenIcon} from "../../components/Tokens/TokenIcon";
 
 interface Props {
     refresh: number;
@@ -244,34 +246,63 @@ export class SendPage extends React.Component<Props, State> {
                         <IonIcon src={arrowBackOutline} size="large" onClick={() => {
                             oRouter.back()
                         }}/>
-                        <IonTitle>Transfer</IonTitle>
+                        <IonTitle>Send Transaction</IonTitle>
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>
                     <div style={{padding: "12px 20px"}}>
-                        <h1>Send {symbol}</h1>
+                        {
+                            token && <IonItem lines="full">
+                                <IonAvatar className="avatar" slot="start">
+                                    {token.image ? <img src={token.image} width={20}/> : <div>{token.protocol.toUpperCase()}</div>}
+                                    <div style={{position:"absolute",bottom:"-8px",right:0}}>
+                                        <img src={`./assets/img/chain/${token.chain.valueOf()}.png`} width="15"/>
+                                    </div>
+                                </IonAvatar>
+                                <IonLabel>
+                                    <span style={{fontSize:"24px",fontWeight:600}}>{token.symbol}</span>
+                                </IonLabel>
+                            </IonItem>
+                        }
                     </div>
-                    <div style={{textAlign: "center"}}>
-                        <IonRow>
-                            <IonCol size="5"><IonBadge color="light">
-                                <IonIcon src={linkOutline}
-                                         style={{transform: "translateY(2px)"}}/> {config.chains[chain].description}
-                            </IonBadge></IonCol>
-                            <IonCol size="2"><IonIcon src={arrowForwardCircleSharp}/></IonCol>
-                            <IonCol size="5"><IonBadge color="light" onClick={() => {
-                                if (resourceId) {
-                                    this.setShowSelectChain(true);
-                                }
-                            }}><IonIcon src={linkOutline}
-                                        style={{transform: "translateY(2px)"}}/>
+
+                    <IonItem>
+                        <IonLabel>
+                            <div style={{textAlign: "center"}}>
+                            <IonRow>
+                                <IonCol size="5">
+                                    <IonBadge color="light">
+                                        <img src={`./assets/img/chain/${chain}.png`}  style={{transform: "translateY(2px)"}} width={30}/>
+                                        <div> {config.chains[chain].description} </div>
+                                    </IonBadge>
+                                </IonCol>
+                                <IonCol size="2">
+                                    <IonIcon src={arrowForwardCircleSharp}/>
+                                    {chain != targetChain ? <div>
+                                        <IonBadge>Cross</IonBadge>
+                                    </div>: <div>
+                                        <IonBadge>Transfer</IonBadge>
+                                    </div>}
+                                </IonCol>
+                                <IonCol size="5"><IonBadge color="light" onClick={() => {
+                                    if (resourceId) {
+                                        this.setShowSelectChain(true);
+                                    }
+                                }}>
+                                    <img src={`./assets/img/chain/${targetChain}.png`}  style={{transform: "translateY(2px)"}} width={30}/>
+                                    <div>
                                         &nbsp;{config.chains[targetChain].description}&nbsp;
-                                {
-                                    resourceId && <IonIcon src={chevronDownOutline}
-                                                           style={{transform: "translateY(2px)"}}/>
-                                }
-                            </IonBadge></IonCol>
-                        </IonRow>
-                    </div>
+                                        {
+                                            resourceId && <IonIcon src={chevronDownOutline}
+                                                                   style={{transform: "translateY(2px)"}}/>
+                                        }
+                                    </div>
+                                </IonBadge></IonCol>
+                            </IonRow>
+                            </div>
+                        </IonLabel>
+                    </IonItem>
+
                     <IonItem lines="none">
                         <IonLabel position="stacked">Address</IonLabel>
                         <IonTextarea disabled={chain != targetChain}
