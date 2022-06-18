@@ -1,5 +1,6 @@
 import {ChainType} from '@emit-technology/emit-lib';
 import {Common} from "web3-core";
+import {TxType} from "../../../../emit-account/app/types";
 
 export interface Tx {
     from?: string | number;
@@ -60,7 +61,9 @@ export interface TxDetail extends TxInfo{
 }
 
 export interface TxRecord {
-    address:string;
-    amount:string;
-    currency:string
+
+    address: string
+    currency: string
+    amount: string
+    tokenAddress: string
 }

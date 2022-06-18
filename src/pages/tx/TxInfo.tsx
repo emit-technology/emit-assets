@@ -4,19 +4,19 @@ import {
     IonContent,
     IonHeader,
     IonIcon,
-    IonItem,
+    IonItem, IonRouterLink,
     IonLabel, IonBadge,
     IonPage,
     IonRow, IonText,
     IonTitle,
-    IonToolbar, IonToast
+    IonToolbar, IonToast, IonAvatar
 } from '@ionic/react';
 import {
     arrowBackOutline,
     checkmarkCircleOutline, copyOutline,
 } from "ionicons/icons";
 import './index.css';
-import {Token, TxDetail} from "../../types";
+import {Token, TxDetail, TxResp} from "../../types";
 import {ChainType} from '@emit-technology/emit-lib';
 import {oRouter} from "../../common/roter";
 import {QRCodeSVG} from 'qrcode.react';
@@ -26,8 +26,8 @@ import config from "../../common/config";
 import {emitBoxSdk} from "../../service/emit";
 import {txService} from "../../service/tx";
 import BigNumber from "bignumber.js";
-import {TokenIcon} from "../../components/Tokens/TokenIcon";
 import copy from "copy-to-clipboard";
+import rpc, {TransactionReceipt} from "../../rpc";
 
 interface Props {
     refresh: number;
@@ -37,9 +37,11 @@ interface Props {
 }
 
 interface State {
-    txDetail?: TxDisplay
+    txDetail?: TxDetail
     showToast: boolean
     toastMsg: string
+    txDisplay?: TxDisplay
+    txReceipt?: TransactionReceipt
 }
 
 interface TxDisplay {
@@ -53,17 +55,17 @@ interface TxDisplay {
     fee: string;
     gasLimit: string;
     gasPrice: string;
-    num:number
+    num: number
 }
 
-interface AmountWithCy{
-    amountDesc:string;
-    token:Token
+interface AmountWithCy {
+    amountDesc: any;
+    token: Token
 }
 
 export class TxInfo extends React.Component<Props, State> {
 
-    state: State = {showToast:false,toastMsg:""}
+    state: State = {showToast: false, toastMsg: ""}
 
     componentDidMount() {
         this.init().catch(e => {
@@ -74,10 +76,10 @@ export class TxInfo extends React.Component<Props, State> {
     _convertToTxDisplay = async (txDetail: TxDetail): Promise<TxDisplay> => {
         const account = await emitBoxSdk.getAccount();
         const {chain} = this.props;
-        let type = "", amount:Array<AmountWithCy> = [];
+        let type = "", amountWithCIES: Array<AmountWithCy> = [];
 
         const address = account.addresses[chain];
-        const toAddress:Array<string> = [];
+        const toAddress: Array<string> = [];
         if (txDetail.records) {
             //from
             {
@@ -88,19 +90,23 @@ export class TxInfo extends React.Component<Props, State> {
                 })
                 if (records && records.length > 0) {
                     for (let record of records) {
-                        if(new BigNumber(record.amount).toNumber() == 0 ){
+                        if (new BigNumber(record.amount).toNumber() == 0) {
                             continue
                         }
                         const token = await tokenService.info(chain, record.currency);
                         const value = utils.fromValue(record.amount, token.decimal);
-                        const sym = value.toNumber()>0?"+ ":""
-                        amount.push({token:token,amountDesc:`${sym}${value.toString(10)} ${record.currency}`})
+                        const sym = value.toNumber() > 0 ? "+" : ""
+                        amountWithCIES.push({
+                            token: token,
+                            amountDesc: <><IonBadge color="light">{utils.ellipsisStr(record.address)}</IonBadge>
+                                <IonBadge color="primary">{`${sym}${value.toString(10)} ${record.currency}`}</IonBadge></>
+                        })
                         type = value.toNumber() > 0 ? "Receive" : "Sent";
                     }
                 }
             }
+            //TO
             {
-
                 const records = txDetail.records.filter(v => {
                     if (v.address.toLowerCase() != address.toLowerCase()) {
                         return v
@@ -108,7 +114,7 @@ export class TxInfo extends React.Component<Props, State> {
                 })
                 if (records && records.length > 0) {
                     for (let record of records) {
-                        if(new BigNumber(record.amount).toNumber() == 0 ){
+                        if (new BigNumber(record.amount).toNumber() == 0) {
                             continue
                         }
                         toAddress.push(record.address)
@@ -116,34 +122,47 @@ export class TxInfo extends React.Component<Props, State> {
                 }
             }
         }
-        let addrs:Array<string> = [];
-        for(let amt of amount){
-            if(txDetail.toAddress && txDetail.toAddress.length>0){
-               addrs = txDetail.toAddress.filter(v=> v.toLowerCase() != amt.token.contractAddress.toLowerCase())
+        // let addrs: Array<string> = [];
+        // for (let amt of amountWithCIES) {
+        //     if (txDetail.toAddress && txDetail.toAddress.length > 0) {
+        //         addrs = txDetail.toAddress.filter(v => v.toLowerCase() != amt.token.contractAddress.toLowerCase())
+        //     }
+        // }
+        // const arr = addrs.concat(toAddress);
+        const toArr = [];
+        for (let a of toAddress) {
+            if (toArr.indexOf(a) == -1) {
+                toArr.push(a)
             }
         }
         return {
             from: txDetail.fromAddress,
-            to: addrs.concat(toAddress),
-            amountWithCy: amount,
+            to: toArr,
+            amountWithCy: amountWithCIES,
             txHash: txDetail.txHash,
             time: utils.dateFormat(new Date(txDetail.timestamp * 1000)),
             type: type,
             num: txDetail.num,
             //@ts-ignore
             url: config.chains[chain].explorer.tx.format(txDetail.txHash),
-            fee: `${utils.fromValue(txDetail.fee,18).toString(10)} ${txDetail.feeCy}`,
-            gasLimit: utils.fromValue(txDetail.gas,0).toString(10),
-            gasPrice: `${utils.fromValue(txDetail.gasPrice, 9).toString(10) } GWei`,
+            fee: `${utils.fromValue(txDetail.fee, 18).toString(10)} ${txDetail.feeCy}`,
+            gasLimit: utils.fromValue(txDetail.gas, 0).toString(10),
+            gasPrice: `${utils.fromValue(txDetail.gasPrice, 9).toString(10)} GWei`,
         }
     }
 
     init = async () => {
-        const {chain, txHash,blockNum} = this.props;
-        const txDetail = await txService.info(chain,txHash,blockNum)
-        const txDis = await this._convertToTxDisplay(txDetail)
+        const {chain, txHash, blockNum} = this.props;
+        const txDetail = await txService.info(chain, txHash, blockNum)
+        const txDisplay = await this._convertToTxDisplay(txDetail)
+        let txReceipt;
+        if (utils.isWeb3Chain(chain)) {
+            txReceipt = await rpc.getTransactionReceipt(chain, txHash);
+        }
         this.setState({
-            txDetail: txDis
+            txDetail: txDetail,
+            txDisplay: txDisplay,
+            txReceipt: txReceipt
         })
     }
 
@@ -153,8 +172,9 @@ export class TxInfo extends React.Component<Props, State> {
             toastMsg: msg
         })
     }
+
     render() {
-        const {txDetail,showToast,toastMsg} = this.state;
+        const {txDetail, showToast, toastMsg, txDisplay, txReceipt} = this.state;
         const {chain} = this.props;
         return (
             <IonPage>
@@ -167,128 +187,190 @@ export class TxInfo extends React.Component<Props, State> {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>
-                    <div className="token-tx-head">
-                        <div className="token-icon">
-                            <IonIcon src={checkmarkCircleOutline} size="large"/> <span className="token-tx-type">{txDetail && txDetail.type}</span>
+                    {/*<div className="token-tx-head">*/}
+                    {/*<div className="token-icon">*/}
+                    {/*    <IonIcon src={checkmarkCircleOutline} size="large"/> <span className="token-tx-type">{txDisplay && txDisplay.type}</span>*/}
+                    {/*</div>*/}
+                    {/*<div className="token-balance">*/}
+                    {/*    {*/}
+                    {/*        txDisplay && txDisplay.amountWithCy.map((v, i) => {*/}
+                    {/*            return <div key={i}>*/}
+                    {/*                <TokenIcon token={v.token}/>{v.amountDesc}*/}
+                    {/*            </div>*/}
+                    {/*        })*/}
+                    {/*    }*/}
+                    {/*</div>*/}
+                    {/*<div>*/}
+                    {/*    <IonText color="medium">{txDisplay && txDisplay.time}</IonText>*/}
+                    {/*</div>*/}
+                    {/*</div>*/}
+                    <IonItem mode="ios">
+                        <IonLabel color="dark" className="info-label"
+                                  position="stacked">Txn Hash:</IonLabel>
+                        <div className="text-small-x2 word-break text-padding-normal">
+                            <IonRouterLink onClick={() => {
+                                if (utils.isWeb3Chain(chain)) {
+                                    //@ts-ignore
+                                    window.open(config.chains[chain].explorer.tx.format(txDisplay.txHash))
+                                }
+                            }}>{txDisplay && txDisplay.txHash}</IonRouterLink>
+                            <IonIcon src={copyOutline} style={{transform: "translate(2px,5px)"}} size="small"
+                                     onClick={() => {
+                                         copy(txDisplay.txHash)
+                                         copy(txDisplay.txHash)
+                                         this.setShowToast(true, "Copied to clipboard!")
+                                     }}/>
                         </div>
-                        <div className="token-balance">
+                    </IonItem>
+                    <IonItem mode="ios">
+                        <IonLabel color="dark" className="info-label"
+                                  position="stacked">Status:</IonLabel>
+                        <div className="text-small-x2 word-break text-padding-normal">
+                            <IonBadge color="success">SUCCESS</IonBadge>
+                        </div>
+                    </IonItem>
+
+                    <IonItem mode="ios">
+                        <IonLabel color="dark" className="info-label"
+                                  position="stacked">Block:</IonLabel>
+                        <div className="text-small-x2 word-break text-padding-normal">
+                            <IonRouterLink onClick={() => {
+                                if (utils.isWeb3Chain(chain)) {
+                                    //@ts-ignore
+                                    window.open(config.chains[chain].explorer.block.format(txDisplay.txHash))
+                                }
+                            }}>
+                                {txDisplay && txDisplay.num}
+                                <IonBadge color="light">{txReceipt && txReceipt.confirmations}</IonBadge>
+                            </IonRouterLink>
+                        </div>
+                        <IonBadge color="light" slot="end" style={{padding: "6px 6px 12px"}}>
+                            <img style={{transform: "translateY(5px)"}} src={`./assets/img/chain/${chain}.png`}
+                                 width="20"/>
+                            <span>
+                                {config.chains[chain].description}
+                            </span>
+                        </IonBadge>
+                    </IonItem>
+
+                    <IonItem mode="ios">
+                        <IonLabel color="dark" className="info-label"
+                                  position="stacked">Timestamp:</IonLabel>
+                        <div className="text-small-x2 word-break text-padding-normal">
+                            {txDisplay && txDisplay.time}
+                        </div>
+                    </IonItem>
+
+
+                    <IonItem mode="ios">
+                        <IonLabel color="dark" className="info-label"
+                                  position="stacked">From:</IonLabel>
+                        <div className="text-small-x2 word-break text-padding-normal">
+                            <IonRouterLink onClick={()=>{
+                                //@ts-ignore
+                               window.open(config.chains[chain].explorer.address.format(txDisplay.from));
+                            }}>
+                                {txDisplay && txDisplay.from}
+                            </IonRouterLink> &nbsp;
+                            <IonIcon src={copyOutline} onClick={()=>{
+                                copy(txDisplay && txDisplay.from)
+                                copy(txDisplay && txDisplay.from)
+                                this.setShowToast(true,"Copied to clipboard!")
+                            }}/>
+                        </div>
+                    </IonItem>
+
+                    <IonItem mode="ios">
+                        <IonLabel color="dark" className="info-label"
+                                  position="stacked">To:</IonLabel>
+                        <div className="text-small-x2 word-break text-padding-normal">
                             {
-                                txDetail && txDetail.amountWithCy.map((v, i) => {
+                                txDisplay && txDisplay.to.map((v, i) => {
                                     return <div key={i}>
-                                        <TokenIcon token={v.token}/>{v.amountDesc}
+                                        <IonRouterLink onClick={()=>{
+                                            //@ts-ignore
+                                            window.open(config.chains[chain].explorer.address.format(txDisplay.from));
+                                        }}>
+                                            {v}
+                                        </IonRouterLink> &nbsp;
+                                        <IonIcon src={copyOutline} onClick={()=>{
+                                            copy(v)
+                                            copy(v)
+                                            this.setShowToast(true,"Copied to clipboard!")
+                                        }}/>
                                     </div>
                                 })
                             }
                         </div>
-                        <div>
-                            <IonText color="medium">{txDetail && txDetail.time}</IonText>
+                    </IonItem>
+
+                    <IonItem mode="ios">
+                        <IonLabel color="dark" className="info-label"
+                                  position="stacked">Value:</IonLabel>
+                        <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
+                            {
+                                txDisplay && txDisplay.amountWithCy.map((v, i) => {
+                                    return <div style={{width: "100%"}}>
+                                        <b>{v.amountDesc}</b> &nbsp;
+                                        {v.token.image ? <img src={v.token.image}
+                                                              width={20}/> :
+                                            <IonBadge color="light">{v.token.protocol.toUpperCase()}</IonBadge>}
+                                    </div>
+                                })
+                            }
                         </div>
-                    </div>
-                    <div>
-                        <IonItem>
-                            <IonLabel className="ion-text-wrap">
-                                <IonRow>
-                                    <IonCol size="3">
-                                        <div><IonText color="medium">Txn Hash</IonText></div>
-                                    </IonCol>
-                                    <IonCol size="9">
-                                        <div onClick={()=>{
-                                            if(utils.isWeb3Chain(chain)){
-                                                //@ts-ignore
-                                                window.open(config.chains[chain].explorer.tx.format(txDetail.txHash))
-                                            }
-                                        }}>
-                                            <IonText>{txDetail && txDetail.txHash}</IonText>
-                                            &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}  onClick={(e)=>{
-                                                e.stopPropagation();
-                                            copy(txDetail.txHash)
-                                            copy(txDetail.txHash)
-                                            this.setShowToast(true,"Copied to clipboard!")
-                                        }}/>
-                                        </div>
-                                    </IonCol>
-                                </IonRow>
-                            </IonLabel>
-                        </IonItem>
-                        <IonItem>
-                            <IonLabel className="ion-text-wrap">
-                                <IonRow>
-                                    <IonCol size="3">
-                                        <div><IonText color="medium">From</IonText></div>
-                                    </IonCol>
-                                    <IonCol size="9">
-                                        <div onClick={()=>{
-                                            if(utils.isWeb3Chain(chain)){
-                                                //@ts-ignore
-                                                window.open(config.chains[chain].explorer.address.format(txDetail.from))
-                                            }
-                                        }}>
-                                            <IonText>{txDetail && txDetail.from}</IonText>
-                                            &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}  onClick={(e)=>{
-                                                e.stopPropagation();
-                                                copy(txDetail.from)
-                                                copy(txDetail.from)
-                                                this.setShowToast(true,"Copied to clipboard!")
-                                            }}/>
-                                        </div>
-                                    </IonCol>
-                                </IonRow>
-                            </IonLabel>
-                        </IonItem>
-                        <IonItem>
-                            <IonLabel className="ion-text-wrap">
-                                <IonRow>
-                                    <IonCol size="3">
-                                        <div><IonText color="medium">To</IonText></div>
-                                    </IonCol>
-                                    <IonCol size="9">
-                                        {
-                                            txDetail && txDetail.to.map((v, i) => {
-                                                return <div key={i}  onClick={()=>{
-                                                    if(utils.isWeb3Chain(chain)){
-                                                        //@ts-ignore
-                                                        window.open(config.chains[chain].explorer.address.format(v))
-                                                    }
-                                                }}>
-                                                    <IonText>{v}</IonText>
-                                                    &nbsp;<IonIcon src={copyOutline} style={{transform: "translateY(2px)"}}  onClick={(e)=>{
-                                                    e.stopPropagation();
-                                                    copy(v)
-                                                    copy(v)
-                                                    this.setShowToast(true,"Copied to clipboard!")
-                                                }}/>
-                                                </div>
-                                            })
-                                        }
-                                    </IonCol>
-                                </IonRow>
-                            </IonLabel>
-                        </IonItem>
-                        <IonItem>
-                            <IonLabel className="ion-text-wrap">
-                                <IonRow>
-                                    <IonCol size="3">
-                                        <div><IonText color="medium">Block</IonText></div>
-                                    </IonCol>
-                                    <IonCol size="9">
-                                        <div>{txDetail && <IonBadge>{txDetail.num}</IonBadge>}</div>
-                                    </IonCol>
-                                </IonRow>
-                            </IonLabel>
-                        </IonItem>
-                        {
-                            utils.isWeb3Chain(this.props.chain)
-                        }
-                    </div>
+                    </IonItem>
                     {
-                        txDetail &&  utils.isWeb3Chain(this.props.chain) && txDetail.url &&
+                        txReceipt && utils.isWeb3Chain(chain) &&
+                        <>
+                            <IonItem mode="ios">
+                                <IonLabel color="dark" className="info-label"
+                                          position="stacked">Gas Used by Transaction:</IonLabel>
+                                <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
+                                    {
+                                        `${txReceipt.gasUsed}(${new BigNumber(txReceipt.gasUsed).dividedBy(new BigNumber(txReceipt.cumulativeGasUsed)).multipliedBy(100).toFixed(2, 1)}%)`
+                                    }
+                                </div>
+                            </IonItem>
+                            <IonItem mode="ios">
+                                <IonLabel color="dark" className="info-label"
+                                          position="stacked">Gas Limit:</IonLabel>
+                                <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
+                                    {
+                                        `${txReceipt.cumulativeGasUsed}`
+                                    }
+                                </div>
+                            </IonItem>
+                            <IonItem mode="ios">
+                                <IonLabel color="dark" className="info-label"
+                                          position="stacked">Transaction Fee:</IonLabel>
+                                <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
+                                    {
+                                        `${new BigNumber(txReceipt.gasUsed).multipliedBy(txReceipt.effectiveGasPrice).dividedBy(1e18).toFixed(8, 1)} ${txDetail.feeCy}`
+                                    }
+                                </div>
+                            </IonItem>
+                            <IonItem mode="ios">
+                                <IonLabel color="dark" className="info-label"
+                                          position="stacked">Gas Price:</IonLabel>
+                                <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
+                                    {
+                                        `${new BigNumber(txReceipt.effectiveGasPrice).dividedBy(1e9).toString(10)} GWei`
+                                    }
+                                </div>
+                            </IonItem>
+                        </>
+                    }
+
+                    {
+                        txDisplay && utils.isWeb3Chain(this.props.chain) && txDisplay.url &&
                         <div className="receive-qr" style={{background: "#fff"}}>
                             <div className="viewa" onClick={() => {
-                                window.open(txDetail.url)
+                                window.open(txDisplay.url)
                             }}>View the transaction &gt;</div>
                             <div className="qr-1">
                                 <div>
-                                    <QRCodeSVG value={txDetail.url}
+                                    <QRCodeSVG value={txDisplay.url}
                                                size={100}/>
 
                                 </div>

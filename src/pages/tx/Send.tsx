@@ -20,7 +20,7 @@ import {
     IonToolbar
 } from '@ionic/react';
 import { Token} from "../../types";
-import {ChainType} from '@emit-technology/emit-lib';
+import {AccountModel, ChainType} from '@emit-technology/emit-lib';
 import {
     arrowBackOutline,
     arrowForwardCircleSharp,
@@ -41,7 +41,6 @@ import {crossConfig} from "../../service/cross/config";
 import {CrossToken} from "../../types/cross";
 import BigNumber from "bignumber.js";
 import {txService} from "../../service/tx";
-import {TokenIcon} from "../../components/Tokens/TokenIcon";
 
 interface Props {
     refresh: number;
@@ -62,6 +61,7 @@ interface State {
     crossToken: CrossToken,
     resourceId?: string
     allowance: BigNumber
+    account?:AccountModel
 }
 
 export class SendPage extends React.Component<Props, State> {
@@ -86,10 +86,11 @@ export class SendPage extends React.Component<Props, State> {
         const token = await tokenService.getTokenBalance(chain, symbol,tokenAddress);
         const crossResource = await crossConfig.getTargetTokens(symbol, chain,tokenAddress);
         const resourceIds = Object.keys(crossResource);
+        const account = await emitBoxSdk.getAccount();
         if (resourceIds && resourceIds.length > 0) {
-            this.setState({token: token, crossToken: crossResource[resourceIds[0]], resourceId: resourceIds[0]})
+            this.setState({token: token, crossToken: crossResource[resourceIds[0]], resourceId: resourceIds[0],account:account})
         } else {
-            this.setState({token: token})
+            this.setState({token: token,account:account})
         }
     }
 
@@ -235,7 +236,7 @@ export class SendPage extends React.Component<Props, State> {
 
     render() {
         const {chain, symbol} = this.props;
-        const {token, showLoading, showToast, crossToken,allowance,resourceId, showSelectChain, toastMsg, amount, receive, targetChain} = this.state;
+        const {token, showLoading, showToast, crossToken,account,allowance,resourceId, showSelectChain, toastMsg, amount, receive, targetChain} = this.state;
 
         // const fee = utils.fromValue(new BigNumber(gas).multipliedBy(new BigNumber(gasPrice)),18).toString(10);
 
@@ -302,6 +303,14 @@ export class SendPage extends React.Component<Props, State> {
                             </div>
                         </IonLabel>
                     </IonItem>
+
+                    {
+                        account &&  <IonItem>
+                            <IonLabel position="stacked">Sender [<b>{account.name}</b>]</IonLabel>
+                            <IonTextarea value={account.addresses[chain]} readonly />
+                        </IonItem>
+                    }
+
 
                     <IonItem lines="none">
                         <IonLabel position="stacked">Address</IonLabel>

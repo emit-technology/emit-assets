@@ -93,9 +93,10 @@ class RPC {
         return rest;
     }
 
-    getTransactionReceipt = async (chain: ChainType, hash: string) => {
-        const prefix = this._getPrefix(chain)
-        const rest: any = await this.post([prefix, "getTransactionReceipt"].join("_"), [hash], chain)
+    getTransactionReceipt = async (chain: ChainType, hash: string):Promise<TransactionReceipt> => {
+        // const prefix = this._getPrefix(chain)
+        // const rest: any = await this.post([prefix, "getTransactionReceipt"].join("_"), [hash], chain)
+        const rest:any = await emitBoxSdk.web3[chain].eth.getTransactionReceipt(hash);
         return rest;
     }
 
@@ -121,6 +122,26 @@ class RPC {
         return rest;
     }
 
+}
+
+export interface TransactionReceipt {
+    to: string;
+    from: string;
+    contractAddress: string,
+    transactionIndex: number,
+    root?: string,
+    gasUsed: string,
+    logsBloom: string,
+    blockHash: string,
+    transactionHash: string,
+    logs: Array<any>,
+    blockNumber: number,
+    confirmations: number,
+    cumulativeGasUsed: string,
+    effectiveGasPrice: string,
+    byzantium: boolean,
+    type: number;
+    status?: number
 }
 
 const rpc = new RPC(config.emitAccountNodeHost);

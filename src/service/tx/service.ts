@@ -61,6 +61,7 @@ class TxService implements ITx {
                     address: address,
                     amount: new BigNumber(token.balance).multipliedBy(-1).toString(10),
                     currency: token.symbol,
+                    tokenAddress: token.contractAddress
                 })
             }
         }
@@ -74,6 +75,7 @@ class TxService implements ITx {
                     address: address,
                     amount: token.balance,
                     currency: token.symbol,
+                    tokenAddress: token.contractAddress
                 })
             }
         }
@@ -104,11 +106,13 @@ class TxService implements ITx {
                     address: address,
                     amount: new BigNumber(token.balance).multipliedBy(-1).toString(10),
                     currency: token.symbol,
+                    tokenAddress: token.contractAddress
                 })
                 records.push({
                     address: out.target,
                     amount: new BigNumber(token.balance).multipliedBy(1).toString(10),
                     currency: token.symbol,
+                    tokenAddress: token.contractAddress
                 })
                 if (fromArr.indexOf(address) == -1) {
                     fromArr.push(address);
@@ -126,6 +130,7 @@ class TxService implements ITx {
                     address: address,
                     amount: token.balance,
                     currency: token.symbol,
+                    tokenAddress: token.contractAddress
                 })
                 if (fromArr.indexOf(settle.from) == -1) {
                     fromArr.push(settle.from);
@@ -258,7 +263,6 @@ class TxService implements ITx {
         const account = await emitBoxSdk.getAccount();
         // const addresses = await emitBoxSdk.web3[chain].eth.getAccounts()
         const from = account.addresses[chain];
-        emitBoxSdk.emitBox.setSelectedAddress(from);
         const txConfig = {
             from: from,
             to: receive,

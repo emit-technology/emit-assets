@@ -2,19 +2,15 @@ import * as React from 'react';
 import {
     IonContent,
     IonHeader,
-    IonLabel,
     IonLoading,
     IonPage,
-    IonSearchbar,IonBadge,
-    IonSegment,
-    IonSegmentButton,
     IonTitle, IonToast,
     IonToolbar
 } from "@ionic/react";
 import {InboxList} from "../../components/Inbox/List";
 import './index.css';
 import {emitBoxSdk} from "../../service/emit";
-import {AccountModel, ChainType} from '@emit-technology/emit-lib';
+import {ChainType} from '@emit-technology/emit-lib';
 import {FactorSet, Settle, SettleResp} from "@emit-technology/emit-account-node-sdk";
 import {CrossBill} from "../../types/cross";
 import {crossBillService} from "../../service/cross/bill";
@@ -138,25 +134,6 @@ export class InboxPage extends React.Component<Props, State> {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen>
-                    {/*<div style={{position: 'sticky', top: 0, background: "#fff", zIndex: "1000"}}>*/}
-                    {/*    <IonSegment className="segment" value={segment} mode="md" onIonChange={e => {*/}
-                    {/*        this.setState({segment: e.detail.value});*/}
-                    {/*        this.init().catch(e => console.error(e))*/}
-                    {/*    }}>*/}
-                    {/*        <IonSegmentButton className="seg-btn" mode="md" value="unSettle">*/}
-                    {/*            <IonLabel>*/}
-                    {/*                {*/}
-                    {/*                    data && data.length>0 && <><IonBadge color="danger">{data.length}</IonBadge>&nbsp;</>*/}
-                    {/*                }*/}
-                    {/*                UnSettle*/}
-                    {/*            </IonLabel>*/}
-
-                    {/*        </IonSegmentButton>*/}
-                    {/*        /!*<IonSegmentButton className="seg-btn" mode="md" value="settled">*!/*/}
-                    {/*        /!*    <IonLabel>Settled</IonLabel>*!/*/}
-                    {/*        /!*</IonSegmentButton>*!/*/}
-                    {/*    </IonSegment>*/}
-                    {/*</div>*/}
                     {
                         "unSettle" == segment && data && data.length > 0 ?
                         data.map((v, i) => {
@@ -188,23 +165,6 @@ export class InboxPage extends React.Component<Props, State> {
                             }
                         }): "unSettle" == segment && <div className="inbox-no-data"><NoneData desc="No data"/></div>
                     }
-
-                    {/*{*/}
-                    {/*    "settled" == segment && settled && settled.length > 0 && settled.map((v,i)=>{*/}
-                    {/*        return  <InboxList key={i} item={v} onReceive={(v) => {*/}
-                    {/*            this.setShowLoading(true)*/}
-                    {/*            this.onReceive([v]).then(() => {*/}
-                    {/*                this.setShowLoading(false)*/}
-                    {/*            }).catch(e => {*/}
-                    {/*                this.setShowLoading(false)*/}
-                    {/*                const err = typeof e == 'string' ? e : e.message;*/}
-                    {/*                this.setShowToast(true, err)*/}
-                    {/*                console.error(e)*/}
-                    {/*            });*/}
-                    {/*        }}/>*/}
-                    {/*    })*/}
-                    {/*}*/}
-
 
                     <IonLoading
                         cssClass='my-custom-class'
