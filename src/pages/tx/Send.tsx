@@ -307,7 +307,7 @@ export class SendPage extends React.Component<Props, State> {
                     {
                         account &&  <IonItem>
                             <IonLabel position="stacked">Sender [<b>{account.name}</b>]</IonLabel>
-                            <IonTextarea value={account.addresses[chain]} readonly />
+                            <IonTextarea style={{fontSize:"12px"}} value={account.addresses[chain]} readonly />
                         </IonItem>
                     }
 

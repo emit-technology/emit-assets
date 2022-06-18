@@ -201,6 +201,10 @@ class TxService implements ITx {
         if (chain != targetChain) {
             toAddress = account.addresses[targetChain];
         }
+        const from = account.addresses[chain];
+        if(from.toLowerCase() == toAddress.toLowerCase()){
+            return Promise.reject("The to address can not be the same with sender!")
+        }
         if (utils.isWeb3Chain(chain)) {
             let data: string;
             if (chain != targetChain) {
