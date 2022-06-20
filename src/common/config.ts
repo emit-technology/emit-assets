@@ -35,7 +35,7 @@ interface ExplorerUrl {
     block: string;
 }
 
-const NODE_ENV: string = process.env.NODE_ENV || 'development';
+const NODE_ENV: string = 'development'//process.env.NODE_ENV || 'development';
 const development: IConfig = {
     recommendTokens: [
         {

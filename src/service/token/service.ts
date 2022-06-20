@@ -39,7 +39,7 @@ class TokenService implements IToken {
                         symbol: symbol,
                         contractAddress: address,
                         decimal: decimal,
-                        image: token.image,
+                        image: token && token.image,
                         chain: chain,
                         protocol: chain == ChainType.BSC ? TokenProtocol.BEP20: TokenProtocol.ERC20,
                         feeCy: chain == ChainType.BSC ?"BNB":"ETH",
