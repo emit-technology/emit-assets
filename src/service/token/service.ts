@@ -261,7 +261,7 @@ class TokenService implements IToken {
     allowance = async (token: Token, spender: string): Promise<BigNumber> => {
         const account = await emitBoxSdk.getAccount();
         const erc20 = new Erc20Contract(token.contractAddress, token.chain);
-        const allowance = await erc20.allowance(account.addresses[token.chain], spender)
+        const allowance = await erc20.allowance(account.addresses[token.chain], spender,account.addresses[token.chain])
         return new BigNumber(allowance)
     }
 

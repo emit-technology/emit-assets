@@ -9,8 +9,8 @@ class Erc20Contract extends EthContract implements Erc20 {
         super(address,ABI,chain);
     }
 
-    allowance = async (owner: string, spender: string): Promise<string> => {
-        return await this.contract.methods.allowance(owner,spender).call()
+    allowance = async (owner: string, spender: string,who:string): Promise<string> => {
+        return await this.contract.methods.allowance(owner,spender).call({from:who})
     }
 
     approve = async (spender: string, value: BigNumber): Promise<any> => {

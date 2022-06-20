@@ -221,7 +221,7 @@ export abstract class Erc20 {
 
     abstract transfer(to: string, value: BigNumber): Promise<any>;
 
-    abstract allowance(owner: string, spender: string): Promise<string>;
+    abstract allowance(owner: string, spender: string,from:string): Promise<string>;
 
     abstract transferFrom(from: string, to: string, value: BigNumber): Promise<any>;
 
