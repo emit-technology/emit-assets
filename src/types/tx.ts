@@ -58,6 +58,7 @@ export interface TxDetail extends TxInfo{
     records?:Array<TxRecord>;
     toAddress?:Array<string>;
     transactionIndex?:string
+    gasUsed?:string
 }
 
 export interface TxRecord {

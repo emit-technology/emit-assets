@@ -144,7 +144,7 @@ export class Home extends React.Component<Props, State> {
     requestAccount = async () => {
         const rest = await emitBoxSdk.emitBox.requestAccount()
         if(rest.error){
-            this.setShowToast(true,rest.error)
+            // this.setShowToast(true,rest.error)
         }else{
             await emitBoxSdk.setAccount(rest.result);
             this.setState({

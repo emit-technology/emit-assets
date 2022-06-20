@@ -327,7 +327,7 @@ export class SendPage extends React.Component<Props, State> {
                         <IonRow>
                             <IonCol size="3">Amount</IonCol>
                             <IonCol size="7"><span className="balance-span"><IonText
-                                color="medium">Available {token && utils.nFormatter(token.balance, 4)}</IonText></span></IonCol>
+                                color="medium">Available {token && utils.nFormatter(token.balance, 8)}</IonText></span></IonCol>
                             <IonCol size="2"><span className="btn-max" onClick={(e)=>{
                                 e.preventDefault()
                                 this.setState({amount: token.balance})

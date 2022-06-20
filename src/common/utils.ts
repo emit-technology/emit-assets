@@ -77,7 +77,8 @@ export const utils = {
     },
 
     dateFormat(date: Date) {
-        return format("dd/MM/yyyy hh:mm:ss", date);
+        // return format("dd/MM/yyyy hh:mm:ss", date);
+        return date.toString();
     },
 
     toHash(v: string): string {
@@ -212,6 +213,33 @@ export const utils = {
 
     toWeb3CheckAddress : (address:string)=>{
         return toChecksumAddress(address)
+    },
+
+    isChrome: (): boolean =>{
+        //@ts-ignore
+        const isChromium = window.chrome;
+        const winNav = window.navigator;
+        const vendorName = winNav.vendor;
+        //@ts-ignore
+        const isOpera = typeof window.opr !== "undefined";
+        const isIEedge = winNav.userAgent.indexOf("Edg") > -1;
+        const isIOSChrome = winNav.userAgent.match("CriOS");
+
+        if (isIOSChrome) {
+            // is Google Chrome on IOS
+        } else if(
+            isChromium !== null &&
+            typeof isChromium !== "undefined" &&
+            vendorName === "Google Inc." &&
+            isOpera === false &&
+            isIEedge === false
+        ) {
+            // is Google Chrome
+            return true
+        } else {
+            // not Google Chrome
+        }
+        return false;
     }
 
 

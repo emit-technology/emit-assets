@@ -116,7 +116,7 @@ export class TxList extends React.Component<Props, State> {
                                 <img src={`./assets/img/chain/${chain.valueOf()}.png`} width="15"/>
                             </div>
                         </div>
-                        <div className="token-balance">{token ? utils.fromValue(token.balance,0).toFixed(6,1) : "0.000"}</div>
+                        <div className="token-balance">{token ? utils.fromValue(token.balance,0).toString(10) : "0.000"}</div>
                     </div>
                     <IonSegment className="segment" mode="md" value={segment} onIonChange={(e)=>{
                         this.setState({segment:e.detail.value})

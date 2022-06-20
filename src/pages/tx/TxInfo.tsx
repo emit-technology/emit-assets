@@ -240,8 +240,8 @@ export class TxInfo extends React.Component<Props, State> {
                                     window.open(config.chains[chain].explorer.block.format(txDisplay.txHash))
                                 }
                             }}>
-                                {txDisplay && txDisplay.num}
-                                <IonBadge color="light">{txReceipt && txReceipt.confirmations}</IonBadge>
+                                <IonBadge color="primary">{txDisplay && txDisplay.num}</IonBadge>
+                                <IonBadge color="light">{txReceipt && txReceipt.transactionIndex}</IonBadge>
                             </IonRouterLink>
                         </div>
                         <IonBadge color="light" slot="end" style={{padding: "6px 6px 12px"}}>
@@ -346,7 +346,7 @@ export class TxInfo extends React.Component<Props, State> {
                                           position="stacked">Transaction Fee:</IonLabel>
                                 <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                                     {
-                                        `${new BigNumber(txReceipt.gasUsed).multipliedBy(txReceipt.effectiveGasPrice).dividedBy(1e18).toFixed(8, 1)} ${txDetail.feeCy}`
+                                        `${new BigNumber(txDetail.gasUsed).multipliedBy(txDetail.gasPrice).dividedBy(1e18).toFixed(8, 1)} ${txDetail.feeCy}`
                                     }
                                 </div>
                             </IonItem>
@@ -355,7 +355,7 @@ export class TxInfo extends React.Component<Props, State> {
                                           position="stacked">Gas Price:</IonLabel>
                                 <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                                     {
-                                        `${new BigNumber(txReceipt.effectiveGasPrice).dividedBy(1e9).toString(10)} GWei`
+                                        `${new BigNumber(txDetail.gasPrice).dividedBy(1e9).toString(10)} GWei`
                                     }
                                 </div>
                             </IonItem>
