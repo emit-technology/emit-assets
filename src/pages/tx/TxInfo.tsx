@@ -310,7 +310,7 @@ export class TxInfo extends React.Component<Props, State> {
                         <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                             {
                                 txDisplay && txDisplay.amountWithCy.map((v, i) => {
-                                    return <div style={{width: "100%"}}>
+                                    return <div style={{width: "100%"}} key={i}>
                                         <b>{v.amountDesc}</b> &nbsp;
                                         {v.token.image ? <img src={v.token.image}
                                                               width={20}/> :
