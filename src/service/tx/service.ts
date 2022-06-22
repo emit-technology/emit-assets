@@ -256,7 +256,8 @@ class TxService implements ITx {
                 const data = JSON.stringify(json);
                 dataSets.push({
                     name: "depositFT",
-                    data: data
+                    data: data,
+                    old: ""//TODO for atom operation
                 })
             }
             return this.emitSend(chain, target, amount, token, dataSets)
@@ -294,6 +295,7 @@ class TxService implements ITx {
                             category: utils.token2Category(token),
                             value: utils.toValueHex(amount),
                         },
+                        data: "" //TODO for refer data
                     },
                 ],
             },

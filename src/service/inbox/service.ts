@@ -7,7 +7,7 @@ class InboxService {
 
     listUnsettle = async (): Promise<Array<SettleResp | CrossBill>> =>{
         const account = await emitBoxSdk.getAccount();
-        const settles = await emitBoxSdk.emitBox.emitDataNode.getSettles(account.addresses[ChainType.EMIT]);
+        const settles = await emitBoxSdk.emitBox.emitDataNode.getUnSettles(account.addresses[ChainType.EMIT]);
         const bills = await crossBillService.list(ChainType.BSC);
         const data: Array<any> = [];
         if (bills && bills.length > 0) {

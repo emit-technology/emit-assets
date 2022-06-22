@@ -97,7 +97,7 @@ export class SendPage extends React.Component<Props, State> {
 
     nextConfirm = async () => {
         const {chain} = this.props;
-        const {receive, amount, token, targetChain} = this.state;
+        const {receive, amount, token, targetChain,account} = this.state;
 
         if (!receive) {
             this.setShowToast(true, "Receive address is required !")
@@ -107,14 +107,18 @@ export class SendPage extends React.Component<Props, State> {
             this.setShowToast(true, "Amount is required !")
             return;
         }
-        if (!utils.checkAddress(receive, targetChain)) {
+        let toAddress = receive;
+        if(chain !== targetChain){
+            toAddress = account.addresses[targetChain];
+        }
+        if (!utils.checkAddress(toAddress, targetChain)) {
             this.setShowToast(true, `Address of [${ChainType[targetChain]}] sum-check failed!`)
             return;
         }
 
         this.setShowLoading(true);
 
-        const ret = await txService.send(chain, receive, amount, token, targetChain)
+        const ret = await txService.send(chain, toAddress, amount, token, targetChain)
 
         if(this.needApprove()){
             const allowance:any = await this.confirmApprove(chain);
@@ -211,7 +215,7 @@ export class SendPage extends React.Component<Props, State> {
                 allowance = await tokenService.allowance(token, handleAddress);
             }
             this.setState({
-                receive: account.addresses[targetChain],
+                receive: `${account.addresses[targetChain]} [${account && account.name}]`,
                 allowance: allowance,
                 targetChain: targetChain,
                 showSelectChain: false,

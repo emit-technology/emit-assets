@@ -1,6 +1,10 @@
 body {
     background: linear-gradient(135deg, rgb(2, 0, 36) 0%, rgba(9,9,121,1) 35%, rgb(187, 103, 248) 100%);
 }
+.stuck{
+    background: #000;
+    opacity: 0.5;
+}
 
 .ion-page {
     /*max-width: 600px !important;*/

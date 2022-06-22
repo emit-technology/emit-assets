@@ -62,7 +62,6 @@ class EmitBoxSdk {
         })
     }
 
-
 }
 
 export const emitBoxSdk = new EmitBoxSdk();

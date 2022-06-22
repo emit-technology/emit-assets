@@ -34,6 +34,7 @@ import {TxList} from "./pages/tx/TxList";
 import {TxInfo} from "./pages/tx/TxInfo";
 import {SendNftPage} from "./pages/tx/SendNft";
 import {Settings} from "./pages/settings/Settings";
+import {utils} from "./common/utils";
 
 setupIonicReact({
     mode: "ios"
@@ -42,8 +43,9 @@ setupIonicReact({
 const App: React.FC = () => {
     const routerRef = useRef<HTMLIonRouterOutletElement | null>(null);
     const [unSettleNum,setUnSettle] = useState(0)
+    // const isNotChrome = utils.isChrome();
     return (
-        <div className="page">
+        <div className={`page`}>
             <div className="page-inner">
                 <IonApp>
                     <IonReactHashRouter>
