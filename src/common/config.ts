@@ -173,8 +173,8 @@ const development: IConfig = {
                 contract: "https://bscscan.com/address/{0}",
                 block: "https://bscscan.com/block/{0}"
             },
-            network: {nodeUrl: "http://127.0.0.1:8585", chainId: "667", chainType: ChainType.EMIT.valueOf()},
-            // network: {nodeUrl: "https://node-emit-dev.bangs.network", chainId: "667", chainType: ChainType.EMIT.valueOf()},
+            // network: {nodeUrl: "http://127.0.0.1:8585", chainId: "667", chainType: ChainType.EMIT.valueOf()},
+            network: {nodeUrl: "https://node-emit-dev.bangs.network", chainId: "667", chainType: ChainType.EMIT.valueOf()},
             common: null,
             nodeAddress: "EaWt4Q2yLcthiETUJNadA1ihHiP4JDd4uPtSN4Rku74PS5aoi"
         },
