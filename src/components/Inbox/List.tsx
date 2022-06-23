@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {
-    IonLabel, IonModal, IonItemDivider, IonItem, IonChip, IonButton, IonCard, IonCardTitle, IonCardSubtitle, IonText,
-    IonAvatar, IonCardContent, IonBadge, IonCardHeader,
-    IonRow, IonCol, IonSegment, IonSegmentButton, IonIcon, IonPage, IonHeader, IonToolbar, IonTitle, IonContent
+    IonLabel, IonModal, IonItem, IonButton, IonCard, IonCardTitle, IonCardSubtitle, IonText,
+    IonCardContent, IonBadge,IonRouterLink, IonCardHeader,
+    IonRow, IonCol, IonIcon, IonPage, IonHeader, IonToolbar, IonTitle, IonContent
 } from '@ionic/react';
 import {utils} from "../../common/utils";
 import {
@@ -11,25 +11,35 @@ import {
     linkOutline
 } from "ionicons/icons";
 import config from "../../common/config";
-import {ChainType} from "@emit-technology/emit-lib";
+import {AccountModel, ChainType} from "@emit-technology/emit-lib";
 import {SettleResp} from '@emit-technology/emit-lib'
 import i18n from '../../locales/i18n';
+import {CrossData} from "../../types/cross";
 
 interface Props {
     item: SettleResp
     onReceive: (SettleResp) => void;
+    account?:AccountModel
 }
 
-export const InboxList: React.FC<Props> = ({item, onReceive}) => {
+export const InboxList: React.FC<Props> = ({item,account, onReceive}) => {
     const v = item;
     const [showModal,setShowModal] = React.useState(false)
+
+    let crossData:CrossData;
+    try{
+      crossData = JSON.parse(Buffer.from(v.factor["data"],"hex").toString());
+    }catch (e){console.error(e)}
+
+    const originChain = crossData && crossData.sourceId?crossData.sourceId:ChainType.EMIT;
     return (<>
         <IonCard>
             <IonCardHeader>
                 <IonCardTitle>
                     <IonRow>
                         <IonCol size="9">
-                            <IonBadge color="light"><IonIcon src={linkOutline} className="icon-transform-3"/>&nbsp;{config.chains[ChainType.EMIT].description}
+                            <IonBadge color="light">
+                                <IonIcon src={linkOutline} className="icon-transform-3"/>&nbsp;{config.chains[originChain].description}
                                 &nbsp;<IonIcon src={arrowForwardCircleOutline} className="icon-transform-3"/>&nbsp;
                                 <IonIcon src={linkOutline} className="icon-transform-3"/>&nbsp;{config.chains[ChainType.EMIT].description}</IonBadge>
                         </IonCol>
@@ -80,8 +90,8 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
 
         <IonModal
             isOpen={showModal}
-            initialBreakpoint={0.5}
-            breakpoints={[0, 0.5, 1]}
+            initialBreakpoint={0.75}
+            breakpoints={[0, 0.4,0.75, 1]}
             onDidDismiss={(e) => {
                setShowModal(false)
             }}>
@@ -98,11 +108,62 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                 </IonHeader>
                 <IonContent>
 
+                    {
+                        crossData && crossData.txHash && <>
+                            <IonItem>
+                                <IonLabel className="ion-text-wrap">
+                                    <IonRow>
+                                        <IonCol size="4">{i18n.t("from")} {i18n.t("chain")}</IonCol>
+                                        <IonCol size="8">
+                                            <IonBadge color="light" style={{padding: "6px 6px 12px"}}>
+                                                <img style={{transform: "translateY(5px)"}} src={`./assets/img/chain/${originChain}.png`} width={20}/>
+                                                <span>{config.chains[originChain].description}</span>
+                                            </IonBadge>
+                                        </IonCol>
+                                    </IonRow>
+                                </IonLabel>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel className="ion-text-wrap">
+                                    <IonRow>
+                                        <IonCol size="4">{i18n.t("target")} {i18n.t("chain")}</IonCol>
+                                        <IonCol size="8">
+                                            <IonBadge color="light" style={{padding: "6px 6px 12px"}}>
+                                                <img style={{transform: "translateY(5px)"}} src={`./assets/img/chain/${ChainType.EMIT}.png`} width={20}/>
+                                                <span>{config.chains[ChainType.EMIT].description}</span>
+                                            </IonBadge>
+                                        </IonCol>
+                                    </IonRow>
+                                </IonLabel>
+                            </IonItem>
+                            <IonItem>
+                                <IonLabel className="ion-text-wrap">
+                                    <IonRow>
+                                        <IonCol size="4">{i18n.t("txHash")}</IonCol>
+                                        <IonCol size="8">
+                                            <IonRouterLink onClick={()=>{
+                                                //@ts-ignore
+                                                window.open(config.chains[originChain].explorer.tx.format(crossData.txHash))
+                                            }}>
+                                                {crossData.txHash}
+                                            </IonRouterLink>
+                                        </IonCol>
+                                    </IonRow>
+                                </IonLabel>
+                            </IonItem>
+                        </>
+                    }
+
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
                                 <IonCol size="4">{i18n.t("from")}</IonCol>
-                                <IonCol size="8">{item.from_index_key.from}</IonCol>
+                                <IonCol size="8">
+                                    {
+                                        crossData && crossData.sender && <IonBadge color="light" className="icon-transform-3">{account && account.addresses[originChain].toLowerCase().indexOf(crossData && crossData.sender.toLowerCase())>-1 && account.name}</IonBadge>
+                                    }
+                                    &nbsp;{crossData && crossData.sender? `0x${crossData.sender}`:item.from_index_key.from}
+                                </IonCol>
                             </IonRow>
                         </IonLabel>
                     </IonItem>

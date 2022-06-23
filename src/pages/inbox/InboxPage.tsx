@@ -10,7 +10,7 @@ import {
 import {InboxList} from "../../components/Inbox/List";
 import './index.css';
 import {emitBoxSdk} from "../../service/emit";
-import {ChainType} from '@emit-technology/emit-lib';
+import {AccountModel, ChainType} from '@emit-technology/emit-lib';
 import {FactorSet, Settle, SettleResp} from "@emit-technology/emit-account-node-sdk";
 import {CrossBill} from "../../types/cross";
 import {crossBillService} from "../../service/cross/bill";
@@ -32,6 +32,7 @@ interface State {
     segment: string
     showToast: boolean,
     toastMsg: string,
+    account?:AccountModel
 }
 
 export class InboxPage extends React.Component<Props, State> {
@@ -59,8 +60,10 @@ export class InboxPage extends React.Component<Props, State> {
 
     init = async () => {
         const data = await inboxService.listUnsettle();
+        const account = await emitBoxSdk.getAccount()
         this.setState({
             data: data,
+            account:account
         })
         this.props.onUpdate(data.length);
     }
@@ -123,14 +126,14 @@ export class InboxPage extends React.Component<Props, State> {
     }
 
     render() {
-        const {showLoading, segment, data, showToast, toastMsg} = this.state;
+        const {showLoading, segment, data, showToast, toastMsg,account} = this.state;
 
         return (
             <IonPage>
                 <IonHeader mode="ios" collapse="fade">
                     <IonToolbar>
                         <IonTitle className="ion-text-center">
-                            Inbox
+                            {i18n.t("inbox")}
                         </IonTitle>
                     </IonToolbar>
                 </IonHeader>
@@ -152,7 +155,7 @@ export class InboxPage extends React.Component<Props, State> {
                                 }
                                 }/>
                             } else if (v["factor"] && v["factor"]["timestamp"]) {
-                                return <InboxList key={i} item={v} onReceive={(v) => {
+                                return <InboxList account={account} key={i} item={v} onReceive={(v) => {
                                     this.setShowLoading(true)
                                     this.onReceive([v]).then(() => {
                                         this.setShowLoading(false)

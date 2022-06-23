@@ -58,3 +58,14 @@ export interface CrossBill {
     erc20: string
     depositBlock: null | BlockWrapped
 }
+
+export interface CrossData {
+    transferType: TransferType,
+    sourceId: ChainType,
+    destinationChainID: ChainType,
+    resourceId: string,
+    recipient: string,
+    callback: string,
+    sender: string,
+    txHash: string
+}

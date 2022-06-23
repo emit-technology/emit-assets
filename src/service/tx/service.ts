@@ -85,7 +85,7 @@ class TxService implements ITx {
                 amount: record.amount,
                 currency: record.currency,
                 num: blk.block.num,
-                timestamp: blk.block.timestamp,
+                timestamp: Math.ceil(blk.block.timestamp/1000),
                 txHash: blk.hash,
                 type: 0
             })
@@ -151,7 +151,7 @@ class TxService implements ITx {
             nonce: 0,
             num: blk.block.num,
             records: records,
-            timestamp: blk.block.timestamp,
+            timestamp: Math.ceil(blk.block.timestamp/1000),
             toAddress: toAddress,
             transactionIndex: "0x0",
             txHash: blk.hash,
@@ -255,14 +255,12 @@ class TxService implements ITx {
                     "callback": ""
                 }
                 const data = JSON.stringify(json);
-                console.log("data",data)
                 // dataSets.push({
                 //     name: "depositFT",
                 //     data: data,
                 //     old: null //for atom operation
                 // })
                 outData = JSON.stringify({Method:"depositFT",Param: Buffer.from(data).toString("hex")});
-                console.log("outData",outData)
             }
             return this.emitSend(chain, target, amount, token, outData,dataSets)
         }

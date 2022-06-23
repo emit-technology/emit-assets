@@ -61,5 +61,6 @@
   "success": "Success",
   "fail": "Failed",
   "next": "Next",
-  "detail": "详情"
+  "detail": "Detail",
+  "target": "Target"
 }

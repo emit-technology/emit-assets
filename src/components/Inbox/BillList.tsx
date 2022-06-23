@@ -64,8 +64,8 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
 
         <IonModal
             isOpen={showModal}
-            initialBreakpoint={0.5}
-            breakpoints={[0, 0.5, 1]}
+            initialBreakpoint={0.75}
+            breakpoints={[0, 0.4, 0.75,1]}
             onDidDismiss={(e) => {
                 setShowModal(false)
             }}>
@@ -84,7 +84,41 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">{i18n.t("receipt")}</IonCol>
+                                <IonCol size="4">{i18n.t("from")} {i18n.t("chain")}</IonCol>
+                                <IonCol size="8">
+                                    <IonBadge color="light" style={{padding: "6px 6px 12px"}}>
+                                        <img style={{transform: "translateY(5px)"}} src={`./assets/img/chain/${ChainType.EMIT}.png`} width={20}/>
+                                        <span>{config.chains[ChainType.EMIT].description}</span>
+                                    </IonBadge>
+                                </IonCol>
+                            </IonRow>
+                        </IonLabel>
+                    </IonItem>
+                    <IonItem>
+                        <IonLabel className="ion-text-wrap">
+                            <IonRow>
+                                <IonCol size="4">{i18n.t("target")} {i18n.t("chain")}</IonCol>
+                                <IonCol size="8">
+                                    <IonBadge color="light" style={{padding: "6px 6px 12px"}}>
+                                        <img style={{transform: "translateY(5px)"}} src={`./assets/img/chain/${ChainType.BSC}.png`} width={20}/>
+                                        <span>{config.chains[ChainType.BSC].description}</span>
+                                    </IonBadge>
+                                </IonCol>
+                            </IonRow>
+                        </IonLabel>
+                    </IonItem>
+                    {/*<IonItem>*/}
+                    {/*    <IonLabel className="ion-text-wrap">*/}
+                    {/*        <IonRow>*/}
+                    {/*            <IonCol size="4">{i18n.t("txHash")}</IonCol>*/}
+                    {/*            <IonCol size="8">{v.depositBlock && v.depositBlock.hash}</IonCol>*/}
+                    {/*        </IonRow>*/}
+                    {/*    </IonLabel>*/}
+                    {/*</IonItem>*/}
+                    <IonItem>
+                        <IonLabel className="ion-text-wrap">
+                            <IonRow>
+                                <IonCol size="4">{i18n.t("receive")}</IonCol>
                                 <IonCol size="8">{utils.toWeb3CheckAddress(item.recipient)}</IonCol>
                             </IonRow>
                         </IonLabel>
@@ -135,7 +169,7 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                                 <IonButton expand="block" onClick={()=>{
                                     setShowModal(false)
                                     onReceive(item)
-                                }}>Receive</IonButton></IonCol>
+                                }}>{i18n.t("receive")}</IonButton></IonCol>
                             </IonRow>
                         </IonLabel>
                     </IonItem>

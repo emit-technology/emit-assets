@@ -145,7 +145,7 @@ class EthCross extends EthContract implements Cross{
     }
 
     depositFT(destinationChainID: number, resourceID: string, recipient: string, amount: BigNumber): Promise<any> {
-        return this.contract.methods.depositFT(destinationChainID,resourceID,recipient,"0x"+amount.toString(16),"0x0").encodeABI()
+        return this.contract.methods.depositFT(destinationChainID,resourceID,recipient,"0x"+amount.toString(16),"0x").encodeABI()
     }
 
     minCrossAmount = async (resourceId: string): Promise<string> => {
