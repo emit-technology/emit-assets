@@ -144,7 +144,7 @@ class TxService implements ITx {
         const txDetail: TxDetail = {
             contract: null,
             fee: "0",
-            feeCy: "EASTER",
+            feeCy: "EMIT",
             fromAddress: fromArr.join(","),
             gas: "0x0",
             gasPrice: "0x0",
@@ -299,14 +299,12 @@ class TxService implements ITx {
                             category: utils.token2Category(token),
                             value: utils.toValueHex(amount),
                         },
-                        data: Buffer.from(outData).toString("hex")//TODO for refer data
+                        data: outData? Buffer.from(outData).toString("hex"):""//TODO for refer data
                     },
                 ],
             },
             undefined
         );
-        console.log(prepareBlock);
-
         await emitBoxSdk.emitBox.emitDataNode.prepareBlock(prepareBlock);
         return Promise.resolve({
             transactionHash: prepareBlock.blk.parent_hash,

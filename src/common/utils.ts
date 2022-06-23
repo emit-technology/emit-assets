@@ -95,7 +95,7 @@ export const utils = {
             category.symbol ===
             "0000000000000000000000000000000000000000000000000000000000000000"
         ) {
-            return "EASTER";
+            return "EMIT CORE";
         }
         return name;
     },

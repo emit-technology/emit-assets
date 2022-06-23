@@ -242,7 +242,20 @@ export class SendPage extends React.Component<Props, State> {
         const {targetChain,allowance} = this.state;
         return allowance.toNumber() == 0 && (chain!=targetChain) && utils.isWeb3Chain(chain);
     }
-
+    requestAccount = async () => {
+        const account = await emitBoxSdk.getAccount();
+        const rest = await emitBoxSdk.emitBox.requestAccount(account && account.accountId)
+        if(rest.error){
+            // this.setShowToast(true,rest.error)
+        }else{
+            await emitBoxSdk.setAccount(rest.result);
+            this.setState({
+                account: rest.result,
+            })
+            this.setShowLoading(true);
+            await this.init();
+        }
+    }
 
     render() {
         const {chain, symbol} = this.props;
@@ -383,7 +396,15 @@ export class SendPage extends React.Component<Props, State> {
                                 const err = typeof e == 'string'?e:e.message;
                                 this.setShowLoading(false)
                                 this.setShowToast(true,err)
-                                console.error(e)
+                                if(err && err.indexOf("Unknown address")>-1){
+                                   this.requestAccount().then(()=>{
+                                       this.setShowLoading(false)
+                                   }).catch(e=>{
+                                       const err = typeof e == 'string'?e:e.message;
+                                       this.setShowLoading(false)
+                                       this.setShowToast(true,err)
+                                   })
+                                }
                             })
 
                         }}>{this.needApprove()?i18n.t("approve"):i18n.t("next")}</IonButton>
@@ -399,7 +420,7 @@ export class SendPage extends React.Component<Props, State> {
                         isOpen={showToast}
                         onDidDismiss={() => this.setShowToast(false)}
                         message={toastMsg}
-                        duration={1500}
+                        duration={2500}
                         position="top"
                         color="primary"
                     />
