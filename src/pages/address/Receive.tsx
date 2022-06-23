@@ -4,11 +4,11 @@ import {arrowBackOutline, copyOutline, shareOutline} from "ionicons/icons";
 import './index.css';
 import {QRCodeSVG} from 'qrcode.react';
 import {oRouter} from "../../common/roter";
-import {AccountModel,ChainType} from '@emit-technology/emit-lib';
+import {ChainType} from '@emit-technology/emit-lib';
 import copy from 'copy-to-clipboard';
-import config from "../../common/config";
 import {tokenService} from "../../service/token";
 import {TokenIcon} from "../../components/Tokens/TokenIcon";
+import i18n from "../../locales/i18n";
 
 interface Props {
     refresh: number;
@@ -47,13 +47,13 @@ export class Receive extends React.Component<Props, any> {
                 <IonHeader collapse="fade">
                     <IonToolbar>
                         <IonIcon src={arrowBackOutline} size="large" onClick={()=>oRouter.back()}/>
-                        <IonTitle>Receive {token}</IonTitle>
+                        <IonTitle>{i18n.t("receive")} {token}</IonTitle>
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>
                     {oToken && <TokenIcon token={oToken}/>}
                     <div className="receive-qr">
-                        <div>Scan the address QR code to transfer</div>
+                        <div>{i18n.t("scanTips")}</div>
                         <div className="qr-1">
                             <div>
                                 <QRCodeSVG value={address} size={200} />
@@ -65,15 +65,15 @@ export class Receive extends React.Component<Props, any> {
                         {/*</div>*/}
                     </div>
                     <div className="ion-text-center" style={{padding:"0 24px"}}>
-                        <p><small><IonText color="medium">Receiving Address</IonText></small></p>
+                        <p><small><IonText color="medium">{i18n.t("receive")} {i18n.t("address")}</IonText></small></p>
                         <p><b><IonText color="medium">{address}</IonText></b></p>
                     </div>
                     <div className="qr-btn" onClick={()=>{
                         copy(address);
                         copy(address);
-                        this.setShowToast(true,"Copied to clipboard!")
+                        this.setShowToast(true,i18n.t("copied"))
                     }}>
-                        <p><IonText color="medium"><IonIcon src={copyOutline} style={{transform: "translateY(3px)"}} /> Copy</IonText></p>
+                        <p><IonText color="medium"><IonIcon src={copyOutline} style={{transform: "translateY(3px)"}} /> {i18n.t("copy")}</IonText></p>
                     </div>
 
                     <IonToast

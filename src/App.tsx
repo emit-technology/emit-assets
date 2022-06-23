@@ -34,7 +34,7 @@ import {TxList} from "./pages/tx/TxList";
 import {TxInfo} from "./pages/tx/TxInfo";
 import {SendNftPage} from "./pages/tx/SendNft";
 import {Settings} from "./pages/settings/Settings";
-import {utils} from "./common/utils";
+import i18n from './locales/i18n'
 
 setupIonicReact({
     mode: "ios"
@@ -43,6 +43,7 @@ setupIonicReact({
 const App: React.FC = () => {
     const routerRef = useRef<HTMLIonRouterOutletElement | null>(null);
     const [unSettleNum,setUnSettle] = useState(0)
+    const [freshNum,setFreshNum] = useState(0)
     // const isNotChrome = utils.isChrome();
     return (
         <div className={`page`}>
@@ -104,29 +105,33 @@ const App: React.FC = () => {
                             <Route path="/tab" render={(props)=>{
                                 return <IonTabs >
                                     <IonRouterOutlet ref={routerRef}>
+                                        <Switch>
                                         <Route exact path="/tab/home" render={()=><Home  onUpdate={(n)=>{
                                             setUnSettle(n)
                                         }} refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>}/>
                                         <Route exact path="/tab/inbox" render={()=><InboxPage onUpdate={(n)=>{
                                             setUnSettle(n)
                                         }} refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>} />
-                                        <Route exact path="/tab/settings" render={()=><Settings refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>}/>
+                                        <Route exact path="/tab/settings" render={()=><Settings onRefresh={()=>{
+                                            setFreshNum(freshNum+1)
+                                        }} refresh={Math.floor(Date.now()/1000)} router={routerRef.current}/>}/>
+                                        </Switch>
                                     </IonRouterOutlet>
                                     <IonTabBar slot="bottom" style={{minHeight:"70px"}} selectedTab="assets">
                                         <IonTabButton tab="assets" href="/tab/home">
                                             <IonIcon icon={walletOutline} />
-                                            <IonLabel>Assets</IonLabel>
+                                            <IonLabel>{i18n.t("assets")}</IonLabel>
                                         </IonTabButton>
 
                                         <IonTabButton tab="inbox" href="/tab/inbox">
                                             <IonIcon icon={cubeOutline} />
-                                            <IonLabel>Inbox</IonLabel>
+                                            <IonLabel>{i18n.t("inbox")}</IonLabel>
                                             {unSettleNum>0 && <IonBadge color="danger">{unSettleNum}</IonBadge>}
                                         </IonTabButton>
 
                                         <IonTabButton tab="settings" href="/tab/settings">
                                             <IonIcon icon={settingsOutline} />
-                                            <IonLabel>Settings</IonLabel>
+                                            <IonLabel>{i18n.t("settings")}</IonLabel>
                                         </IonTabButton>
                                     </IonTabBar>
                                 </IonTabs>

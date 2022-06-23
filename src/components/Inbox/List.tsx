@@ -13,6 +13,7 @@ import {
 import config from "../../common/config";
 import {ChainType} from "@emit-technology/emit-lib";
 import {SettleResp} from '@emit-technology/emit-lib'
+import i18n from '../../locales/i18n';
 
 interface Props {
     item: SettleResp
@@ -40,7 +41,7 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                     </IonRow>
                 </IonCardTitle>
                 <IonCardSubtitle>
-                    {utils.dateFormat(new Date(v.factor.timestamp * 1000))}
+                    {utils.dateFormat(new Date(v.factor.timestamp ))}
                 </IonCardSubtitle>
             </IonCardHeader>
             <IonCardContent>
@@ -61,7 +62,7 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                             <IonButton expand="block" size="small" onClick={() => {
                                 setShowModal(false);
                                 onReceive(v)
-                            }}>Receive</IonButton>
+                            }}>{i18n.t("receive")}</IonButton>
                         </IonCol>
                     </IonRow>
                 }
@@ -88,7 +89,7 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                 <IonHeader>
                     <IonToolbar color="white">
                         <IonTitle>
-                           Detail
+                            {i18n.t("detail")}
                         </IonTitle>
                         <IonIcon slot="end" icon={close} size="large" onClick={() => {
                             setShowModal(false)
@@ -100,7 +101,7 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">From</IonCol>
+                                <IonCol size="4">{i18n.t("from")}</IonCol>
                                 <IonCol size="8">{item.from_index_key.from}</IonCol>
                             </IonRow>
                         </IonLabel>
@@ -108,7 +109,7 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">Block</IonCol>
+                                <IonCol size="4">{i18n.t("block")}</IonCol>
                                 <IonCol size="8"><IonBadge>{item.from_index_key.num}</IonBadge></IonCol>
                             </IonRow>
                         </IonLabel>
@@ -116,8 +117,8 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">Time</IonCol>
-                                <IonCol size="8">{utils.dateFormat(new Date(item.factor.timestamp*1000))}</IonCol>
+                                <IonCol size="4">{i18n.t("timestamp")}</IonCol>
+                                <IonCol size="8">{utils.dateFormat(new Date(item.factor.timestamp))}</IonCol>
                             </IonRow>
                         </IonLabel>
                     </IonItem>
@@ -143,10 +144,11 @@ export const InboxList: React.FC<Props> = ({item, onReceive}) => {
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">Status</IonCol>
+                                <IonCol size="4">{i18n.t("status")}</IonCol>
                                 <IonCol size="8">{item.settled?<IonBadge color="success">Settled</IonBadge>:<IonButton expand="block" onClick={()=>{
+                                    setShowModal(false)
                                     onReceive(item)
-                                }}>Receive</IonButton>}</IonCol>
+                                }}>{i18n.t("receive")}</IonButton>}</IonCol>
                             </IonRow>
                         </IonLabel>
                     </IonItem>

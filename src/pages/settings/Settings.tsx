@@ -1,8 +1,7 @@
 import * as React from "react";
-import {IonPage,IonContent,IonHeader,IonTitle,IonToolbar,IonItemDivider,IonItem,
-IonLabel,IonText,IonIcon,IonAvatar} from '@ionic/react';
+import {IonPage,IonContent,IonAlert,IonHeader,IonTitle,IonToolbar,IonItemDivider,IonItem,
+IonLabel,IonIcon} from '@ionic/react';
 import {
-    browsersOutline,
     chevronForwardOutline,
     logoFacebook,
     logoReddit,
@@ -10,12 +9,16 @@ import {
     readerSharp,
     paperPlaneSharp, globe, logoGithub, logoMedium, languageOutline, logoDiscord, logoYoutube, logoInstagram
 } from "ionicons/icons";
+import i18n from "../../locales/i18n";
 interface Props{
     router: HTMLIonRouterOutletElement | null;
-    refresh: number
+    refresh: number;
+    onRefresh: ()=>void;
 }
 
 interface State{
+    showLanguageModal:boolean
+    languages: Array<any>
 }
 const items = [
     {logo: globe,name: "Website", url: "https://emit.technology", value: "https://emit.technology"},
@@ -31,8 +34,105 @@ const items = [
     {logo: logoInstagram,name: "Instagram", url: "https://www.instagram.com/emit_herman/", value: "https://www.instagram.com/emit_herman/"},
 ]
 
+const languages:Array<any> = [
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'English',
+        value: 'en_US',
+        checked: "en_US" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: '日本語',
+        value: 'ja_JP',
+        checked: "ja_JP" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'русский',
+        value: 'be_BY',
+        checked: "be_BY" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: '한국어',
+        value: 'ko_KR',
+        checked: "ko_KR" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: '繁體中文',
+        value: 'zh_TW',
+        checked: "zh_TW" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'Français',
+        value: 'fr_FR',
+        checked: "fr_FR" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'Italiano',
+        value: 'it_IT',
+        checked: "it_IT" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'Nederlands',
+        value: 'nl_NL',
+        checked: "nl_NL" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'Español',
+        value: 'es_ES',
+        checked: "es_ES" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'Deutsch',
+        value: 'de_DE',
+        checked: "de_DE" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: 'Português',
+        value: 'pt_BR',
+        checked: "pt_BR" == localStorage.getItem("language")
+    },
+    {
+        name: 'language',
+        type: 'radio',
+        label: '简体中文',
+        value: 'zh_CN',
+        checked: "zh_CN" == localStorage.getItem("language")
+    },
+];
+
+languages.sort((a:any, b:any)=>{
+    if(a.value.toLowerCase()>b.value.toLowerCase()){
+        return 1;
+    }
+    if(a.value.toLowerCase() < b.value.toLowerCase()){
+        return -1;
+    }
+    return 0
+})
+
 export class Settings extends React.Component<Props, State> {
-    state: State = {};
+    state: State = {showLanguageModal:false,languages:languages};
 
     componentDidMount() {
         this.init().catch(e => {
@@ -51,28 +151,50 @@ export class Settings extends React.Component<Props, State> {
     init = async () => {
     }
 
+    setLan = (language:string) =>{
+        const {languages} = this.state;
+        localStorage.setItem("language",language);
+        i18n.changeLanguage(language).then(()=>{
+            // window.location.reload();
+        }).catch(e=>{
+            console.error(e)
+        })
+        this.props.onRefresh()
+        const langs = [];
+        for(let lan of languages){
+            lan.checked = language == lan.value;
+            langs.push(lan)
+        }
+        this.setState({languages:langs})
+    }
+
     render() {
+        const {showLanguageModal,languages} = this.state;
         return (
             <IonPage>
                 <IonHeader collapse="fade">
                     <IonToolbar>
-                        <IonTitle>Settings</IonTitle>
+                        <IonTitle>{i18n.t("settings")}</IonTitle>
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>
-                    <IonItemDivider mode="md">General</IonItemDivider>
+                    <IonItemDivider mode="md">{i18n.t("general")}</IonItemDivider>
                     <div>
-                        <IonItem lines="none">
+                        <IonItem lines="none" onClick={()=>{
+                            this.setState({showLanguageModal:true})
+                        }}>
                             <IonIcon src={languageOutline} slot="start" size="small"/>
                             <IonLabel className="ion-text-wrap">
-                               Language
+                                {i18n.t("language")}
                             </IonLabel>
-                            <IonIcon size="small" src={chevronForwardOutline}/>
+                            <IonLabel slot="end">
+                                <p>{i18n.t('lang')}</p>
+                            </IonLabel>
+                            <IonIcon size="small" slot="end" src={chevronForwardOutline}/>
                         </IonItem>
-
                     </div>
 
-                    <IonItemDivider mode="md">Community</IonItemDivider>
+                    <IonItemDivider mode="md">{i18n.t("community")}</IonItemDivider>
                     <div>
                         {
                             items.map((v,i)=>{
@@ -83,13 +205,13 @@ export class Settings extends React.Component<Props, State> {
                                     <IonLabel className="ion-text-wrap">
                                         {v.name}
                                     </IonLabel>
-                                    <IonIcon size="small" src={chevronForwardOutline}/>
+                                    <IonIcon  slot="end" size="small" src={chevronForwardOutline}/>
                                 </IonItem>
                             })
                         }
                     </div>
 
-                    <IonItemDivider mode="md">Others</IonItemDivider>
+                    <IonItemDivider mode="md">{i18n.t("others")}</IonItemDivider>
                     <div>
 
                         <IonItem lines="none" onClick={()=>{
@@ -97,20 +219,45 @@ export class Settings extends React.Component<Props, State> {
                         }}>
                             <IonIcon src={readerSharp} slot="start" size="small"/>
                             <IonLabel className="ion-text-wrap">
-                                Term of Use
+                                {i18n.t("termOfUse")}
                             </IonLabel>
-                            <IonIcon size="small" src={chevronForwardOutline}/>
+                            <IonIcon slot="end" size="small" src={chevronForwardOutline}/>
                         </IonItem>
                         <IonItem lines="none" onClick={()=>{
                             window.open("https://emit.technology/wallet/privacy-policy.html")
                         }}>
                             <IonIcon src={readerSharp} slot="start" size="small"/>
                             <IonLabel className="ion-text-wrap">
-                                Service of Policy
+                                {i18n.t("serviceOfPolicy")}
                             </IonLabel>
-                            <IonIcon size="small" src={chevronForwardOutline}/>
+                            <IonIcon slot="end" size="small" src={chevronForwardOutline}/>
                         </IonItem>
                     </div>
+
+                    <IonAlert
+                        isOpen={showLanguageModal}
+                        onDidDismiss={() => this.setState({
+                            showLanguageModal:false
+                        })}
+                        header={i18n.t("language")}
+                        inputs={languages}
+                        buttons={[
+                            {
+                                text: i18n.t("cancel"),
+                                role: 'cancel',
+                                cssClass: 'secondary',
+                                handler: () => {
+                                    console.log('Confirm Cancel');
+                                }
+                            },
+                            {
+                                text: i18n.t("ok"),
+                                handler: (language) => {
+                                    this.setLan(language);
+                                }
+                            }
+                        ]}
+                    />
                 </IonContent>
             </IonPage>
         );

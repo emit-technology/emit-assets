@@ -41,6 +41,7 @@ import {crossConfig} from "../../service/cross/config";
 import {CrossToken} from "../../types/cross";
 import BigNumber from "bignumber.js";
 import {txService} from "../../service/tx";
+import i18n from "../../locales/i18n";
 
 interface Props {
     refresh: number;
@@ -100,11 +101,11 @@ export class SendPage extends React.Component<Props, State> {
         const {receive, amount, token, targetChain,account} = this.state;
 
         if (!receive) {
-            this.setShowToast(true, "Receive address is required !")
+            this.setShowToast(true, i18n.t("addressIsRequired"))
             return;
         }
         if (!amount) {
-            this.setShowToast(true, "Amount is required !")
+            this.setShowToast(true, i18n.t("amountIsRequired"))
             return;
         }
         let toAddress = receive;
@@ -114,6 +115,11 @@ export class SendPage extends React.Component<Props, State> {
         if (!utils.checkAddress(toAddress, targetChain)) {
             this.setShowToast(true, `Address of [${ChainType[targetChain]}] sum-check failed!`)
             return;
+        }
+
+        if(new BigNumber(amount).comparedTo(new BigNumber(token.balance)) == 1){
+            this.setShowToast(true, i18n.t("insufficientBalance"))
+            return ;
         }
 
         this.setShowLoading(true);
@@ -140,7 +146,7 @@ export class SendPage extends React.Component<Props, State> {
                     count++;
                     if (count > 60) {
                         clearInterval(interId);
-                        reject("Pending timeout!")
+                        reject(i18n.t("pendingTimeout"))
                     } else {
                         rpc.getTxInfo(chain, tx.transactionHash).then(rest => {
                             if (rest && rest.num > 0) {
@@ -167,7 +173,7 @@ export class SendPage extends React.Component<Props, State> {
                     count++;
                     if (count > 60) {
                         clearInterval(interId);
-                        reject("Pending timeout!")
+                        reject(i18n.t("pendingTimeout"))
                     } else {
                         if (utils.isWeb3Chain(chain) && utils.isErc20Token(token)) {
                             crossConfig.getTokenContractHandle(chain).then(handleAddress=>{
@@ -251,7 +257,7 @@ export class SendPage extends React.Component<Props, State> {
                         <IonIcon src={arrowBackOutline} size="large" onClick={() => {
                             oRouter.back()
                         }}/>
-                        <IonTitle>Send Transaction</IonTitle>
+                        <IonTitle>{i18n.t("sendTransaction")}</IonTitle>
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>
@@ -284,9 +290,9 @@ export class SendPage extends React.Component<Props, State> {
                                 <IonCol size="2">
                                     <IonIcon src={arrowForwardCircleSharp}/>
                                     {chain != targetChain ? <div>
-                                        <IonBadge>Cross</IonBadge>
+                                        <IonBadge>{i18n.t("cross")}</IonBadge>
                                     </div>: <div>
-                                        <IonBadge>Transfer</IonBadge>
+                                        <IonBadge>{i18n.t("transfer")}</IonBadge>
                                     </div>}
                                 </IonCol>
                                 <IonCol size="5"><IonBadge color="light" onClick={() => {
@@ -310,16 +316,16 @@ export class SendPage extends React.Component<Props, State> {
 
                     {
                         account &&  <IonItem>
-                            <IonLabel position="stacked">Sender [<b>{account.name}</b>]</IonLabel>
+                            <IonLabel position="stacked">{i18n.t("sender")} [<b>{account.name}</b>]</IonLabel>
                             <IonTextarea style={{fontSize:"12px"}} value={account.addresses[chain]} readonly />
                         </IonItem>
                     }
 
 
                     <IonItem lines="none">
-                        <IonLabel position="stacked">Address</IonLabel>
+                        <IonLabel position="stacked">{i18n.t("address")}</IonLabel>
                         <IonTextarea disabled={chain != targetChain}
-                                     placeholder={`Input ${config.chains[targetChain].description} address`} autoGrow
+                                     placeholder={`${i18n.t("input")} ${config.chains[targetChain].description} ${i18n.t("address")} `} autoGrow
                                      value={receive} clearOnEdit color="primary" onIonChange={(e) => {
                             //TODO validation
                             this.setState({
@@ -329,13 +335,13 @@ export class SendPage extends React.Component<Props, State> {
                     </IonItem>
                     <div style={{padding: "0 12px"}}>
                         <IonRow>
-                            <IonCol size="3">Amount</IonCol>
+                            <IonCol size="3">{i18n.t("amount")}</IonCol>
                             <IonCol size="7"><span className="balance-span"><IonText
-                                color="medium">Available {token && utils.nFormatter(token.balance, 8)}</IonText></span></IonCol>
+                                color="medium">{i18n.t("available")} {token && utils.nFormatter(token.balance, 8)}</IonText></span></IonCol>
                             <IonCol size="2"><span className="btn-max" onClick={(e)=>{
                                 e.preventDefault()
                                 this.setState({amount: token.balance})
-                            }}>MAX</span></IonCol>
+                            }}>{i18n.t("max")}</span></IonCol>
                         </IonRow>
                     </div>
                     <IonItem lines="none">
@@ -380,13 +386,13 @@ export class SendPage extends React.Component<Props, State> {
                                 console.error(e)
                             })
 
-                        }}>{this.needApprove()?"Approve":"Transfer"}</IonButton>
+                        }}>{this.needApprove()?i18n.t("approve"):i18n.t("next")}</IonButton>
                     </div>
                     <IonLoading
                         cssClass='my-custom-class'
                         isOpen={showLoading}
                         onDidDismiss={() => this.setShowLoading(false)}
-                        message={'Pending...'}
+                        message={i18n.t("pending")}
                         duration={60 * 1000}
                     />
                     <IonToast

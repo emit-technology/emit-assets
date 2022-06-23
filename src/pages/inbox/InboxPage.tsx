@@ -18,6 +18,7 @@ import {BillList} from "../../components/Inbox/BillList";
 import {oRouter} from "../../common/roter";
 import {NoneData} from "../../components/Data/None";
 import {inboxService} from "../../service/inbox";
+import i18n from "../../locales/i18n";
 
 interface Props {
     router: HTMLIonRouterOutletElement | null;
@@ -163,14 +164,14 @@ export class InboxPage extends React.Component<Props, State> {
                                     });
                                 }}/>
                             }
-                        }): "unSettle" == segment && <div className="inbox-no-data"><NoneData desc="No data"/></div>
+                        }): "unSettle" == segment && <div className="inbox-no-data"><NoneData desc={i18n.t("noData")}/></div>
                     }
 
                     <IonLoading
                         cssClass='my-custom-class'
                         isOpen={showLoading}
                         onDidDismiss={() => this.setShowLoading(false)}
-                        message={'Pending...'}
+                        message={i18n.t("pending")}
                         duration={60 * 1000}
                     />
                     <IonToast

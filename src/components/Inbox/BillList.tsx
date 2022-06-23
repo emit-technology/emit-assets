@@ -9,6 +9,7 @@ import {CrossBill} from "../../types/cross";
 import config from "../../common/config";
 import {arrowForwardCircleOutline, close, ellipsisHorizontalOutline, linkOutline} from "ionicons/icons";
 import {ChainType} from "@emit-technology/emit-lib";
+import i18n from "../../locales/i18n";
 
 interface Props{
     item: CrossBill
@@ -55,7 +56,7 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                         <IonButton expand="block" size="small" onClick={() => {
                             setShowModal(false);
                             onReceive(v)
-                        }}>Receive</IonButton>
+                        }}>{i18n.t("receive")}</IonButton>
                     </IonCol>
                 </IonRow>
             </IonCardContent>
@@ -83,7 +84,7 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">Receipt</IonCol>
+                                <IonCol size="4">{i18n.t("receipt")}</IonCol>
                                 <IonCol size="8">{utils.toWeb3CheckAddress(item.recipient)}</IonCol>
                             </IonRow>
                         </IonLabel>
@@ -91,7 +92,7 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">Block</IonCol>
+                                <IonCol size="4">{i18n.t("block")}</IonCol>
                                 <IonCol size="8"><IonBadge>{item.depositBlock && item.depositBlock.block.num}</IonBadge></IonCol>
                             </IonRow>
                         </IonLabel>
@@ -99,7 +100,7 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">Time</IonCol>
+                                <IonCol size="4">{i18n.t("timestamp")}</IonCol>
                                 <IonCol size="8">{utils.dateFormat(new Date(item.timestamp*1000))}</IonCol>
                             </IonRow>
                         </IonLabel>
@@ -129,7 +130,7 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                     <IonItem>
                         <IonLabel className="ion-text-wrap">
                             <IonRow>
-                                <IonCol size="4">Status</IonCol>
+                                <IonCol size="4">{i18n.t("status")}</IonCol>
                                 <IonCol size="8">
                                 <IonButton expand="block" onClick={()=>{
                                     setShowModal(false)

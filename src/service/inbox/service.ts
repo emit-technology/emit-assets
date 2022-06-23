@@ -33,11 +33,13 @@ class InboxService {
             t1 = a1["factor"]["timestamp"];
         } else {
             t1 = a1["timestamp"];
+            t1 = t1*10000;
         }
         if (b1["factor"] && b1["factor"]["timestamp"]) {
             t2 = b1["factor"]["timestamp"];
         } else {
             t2 = b1["timestamp"]
+            t2 = t2*1000;
         }
         return t2 - t1;
     }

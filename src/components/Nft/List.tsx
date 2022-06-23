@@ -4,6 +4,7 @@ import {NoneData} from "../Data/None";
 import {IonRow, IonCol} from '@ionic/react';
 import {NftItem} from "./Item";
 import './Index.css';
+import i18n from "../../locales/i18n";
 
 interface Props {
     items: Array<NftStandard>;
@@ -23,6 +24,6 @@ export const NftList: React.FC<Props> = ({items,showCount,onClickItem}) => {
                         </IonCol>
                 })
             }
-        </> : <NoneData desc="No NFTs Yet!"/>}
+        </> : <NoneData desc={i18n.t("noNftYet")}/>}
     </IonRow>)
 }

@@ -35,6 +35,7 @@ import {utils} from "../common/utils";
 import config from "../common/config";
 import {interVarBalance} from "../common/interVal";
 import {inboxService} from "../service/inbox";
+import i18n from "../locales/i18n";
 
 interface Props {
     router: HTMLIonRouterOutletElement | null;
@@ -249,10 +250,10 @@ export class Home extends React.Component<Props, State> {
                                                 this.setTab(e.detail.value)
                                             }}>
                                     <IonSegmentButton className="seg-btn" mode="md" value="tokens">
-                                        <IonLabel>Tokens</IonLabel>
+                                        <IonLabel>{i18n.t("tokens")}</IonLabel>
                                     </IonSegmentButton>
                                     <IonSegmentButton className="seg-btn" mode="md" value="nfts">
-                                        <IonLabel>NFTs</IonLabel>
+                                        <IonLabel>{i18n.t("nfts")}</IonLabel>
                                     </IonSegmentButton>
                                 </IonSegment>
                             </div>
@@ -284,7 +285,7 @@ export class Home extends React.Component<Props, State> {
                                 }}>
                                 <div>
                                     <TokenListModal tokens={modal == 'add' ? allTokens : tokens}
-                                                    title={modal == 'add' ? "Add Tokens" : "Select Token"}
+                                                    title={modal == 'add' ? i18n.t("addToken") : i18n.t("selectToken")}
                                                     onClose={() => {
                                                         this.initBalance().catch(e => console.error(e))
                                                         this.setShowModal(false, "");
@@ -312,7 +313,7 @@ export class Home extends React.Component<Props, State> {
                                     }}/>
 
                                 </div>
-                                <IonButton onClick={() => this.setShowModal(false, "")}>Close Modal</IonButton>
+                                <IonButton onClick={() => this.setShowModal(false, "")}>{i18n.t("close")}</IonButton>
                             </IonModal>
                         </div>
                         <div className="footer">

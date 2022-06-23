@@ -1,19 +1,17 @@
 import * as React from 'react';
 import {
-    IonCol,
     IonContent,
     IonHeader,
     IonIcon,
     IonItem, IonRouterLink,
     IonLabel, IonBadge,
     IonPage,
-    IonRow, IonText,
     IonTitle,
-    IonToolbar, IonToast, IonAvatar
+    IonToolbar, IonToast
 } from '@ionic/react';
 import {
     arrowBackOutline,
-    checkmarkCircleOutline, copyOutline,
+    copyOutline,
 } from "ionicons/icons";
 import './index.css';
 import {Token, TxDetail, TxResp} from "../../types";
@@ -28,6 +26,7 @@ import {txService} from "../../service/tx";
 import BigNumber from "bignumber.js";
 import copy from "copy-to-clipboard";
 import rpc, {TransactionReceipt} from "../../rpc";
+import i18n from "../../locales/i18n";
 
 interface Props {
     refresh: number;
@@ -122,13 +121,6 @@ export class TxInfo extends React.Component<Props, State> {
                 }
             }
         }
-        // let addrs: Array<string> = [];
-        // for (let amt of amountWithCIES) {
-        //     if (txDetail.toAddress && txDetail.toAddress.length > 0) {
-        //         addrs = txDetail.toAddress.filter(v => v.toLowerCase() != amt.token.contractAddress.toLowerCase())
-        //     }
-        // }
-        // const arr = addrs.concat(toAddress);
         const toArr = [];
         for (let a of toAddress) {
             if (toArr.indexOf(a) == -1) {
@@ -183,7 +175,7 @@ export class TxInfo extends React.Component<Props, State> {
                         <IonIcon size="large" src={arrowBackOutline} onClick={() => {
                             oRouter.back();
                         }}/>
-                        <IonTitle>Transfer Details</IonTitle>
+                        <IonTitle>{i18n.t("txDetail")}</IonTitle>
                     </IonToolbar>
                 </IonHeader>
                 <IonContent fullscreen scrollY>
@@ -206,7 +198,7 @@ export class TxInfo extends React.Component<Props, State> {
                     {/*</div>*/}
                     <IonItem mode="ios">
                         <IonLabel color="dark" className="info-label"
-                                  position="stacked">Txn Hash:</IonLabel>
+                                  position="stacked">{i18n.t("txHash")}:</IonLabel>
                         <div className="text-small-x2 word-break text-padding-normal">
                             <IonRouterLink onClick={() => {
                                 if (utils.isWeb3Chain(chain)) {
@@ -224,15 +216,15 @@ export class TxInfo extends React.Component<Props, State> {
                     </IonItem>
                     <IonItem mode="ios">
                         <IonLabel color="dark" className="info-label"
-                                  position="stacked">Status:</IonLabel>
+                                  position="stacked">{i18n.t("status")}:</IonLabel>
                         <div className="text-small-x2 word-break text-padding-normal">
-                            <IonBadge color="success">SUCCESS</IonBadge>
+                            <IonBadge color="success">{i18n.t("success").toUpperCase()}</IonBadge>
                         </div>
                     </IonItem>
 
                     <IonItem mode="ios">
                         <IonLabel color="dark" className="info-label"
-                                  position="stacked">Block:</IonLabel>
+                                  position="stacked">{i18n.t("block")}:</IonLabel>
                         <div className="text-small-x2 word-break text-padding-normal">
                             <IonRouterLink onClick={() => {
                                 if (utils.isWeb3Chain(chain)) {
@@ -255,7 +247,7 @@ export class TxInfo extends React.Component<Props, State> {
 
                     <IonItem mode="ios">
                         <IonLabel color="dark" className="info-label"
-                                  position="stacked">Timestamp:</IonLabel>
+                                  position="stacked">{i18n.t("timestamp")}:</IonLabel>
                         <div className="text-small-x2 word-break text-padding-normal">
                             {txDisplay && txDisplay.time}
                         </div>
@@ -264,7 +256,7 @@ export class TxInfo extends React.Component<Props, State> {
 
                     <IonItem mode="ios">
                         <IonLabel color="dark" className="info-label"
-                                  position="stacked">From:</IonLabel>
+                                  position="stacked">{i18n.t("from")}:</IonLabel>
                         <div className="text-small-x2 word-break text-padding-normal">
                             <IonRouterLink onClick={()=>{
                                 //@ts-ignore
@@ -282,7 +274,7 @@ export class TxInfo extends React.Component<Props, State> {
 
                     <IonItem mode="ios">
                         <IonLabel color="dark" className="info-label"
-                                  position="stacked">To:</IonLabel>
+                                  position="stacked">{i18n.t("to")}:</IonLabel>
                         <div className="text-small-x2 word-break text-padding-normal">
                             {
                                 txDisplay && txDisplay.to.map((v, i) => {
@@ -306,7 +298,7 @@ export class TxInfo extends React.Component<Props, State> {
 
                     <IonItem mode="ios">
                         <IonLabel color="dark" className="info-label"
-                                  position="stacked">Value:</IonLabel>
+                                  position="stacked">{i18n.t("value")}:</IonLabel>
                         <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                             {
                                 txDisplay && txDisplay.amountWithCy.map((v, i) => {
@@ -325,7 +317,7 @@ export class TxInfo extends React.Component<Props, State> {
                         <>
                             <IonItem mode="ios">
                                 <IonLabel color="dark" className="info-label"
-                                          position="stacked">Gas Used by Transaction:</IonLabel>
+                                          position="stacked">{i18n.t("gasUsed")}:</IonLabel>
                                 <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                                     {
                                         `${txReceipt.gasUsed}(${new BigNumber(txReceipt.gasUsed).dividedBy(new BigNumber(txReceipt.cumulativeGasUsed)).multipliedBy(100).toFixed(2, 1)}%)`
@@ -334,7 +326,7 @@ export class TxInfo extends React.Component<Props, State> {
                             </IonItem>
                             <IonItem mode="ios">
                                 <IonLabel color="dark" className="info-label"
-                                          position="stacked">Gas Limit:</IonLabel>
+                                          position="stacked">{i18n.t("gasLimit")}:</IonLabel>
                                 <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                                     {
                                         `${txReceipt.cumulativeGasUsed}`
@@ -343,7 +335,7 @@ export class TxInfo extends React.Component<Props, State> {
                             </IonItem>
                             <IonItem mode="ios">
                                 <IonLabel color="dark" className="info-label"
-                                          position="stacked">Transaction Fee:</IonLabel>
+                                          position="stacked">{i18n.t("transactionFee")}:</IonLabel>
                                 <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                                     {
                                         `${new BigNumber(txDetail.gasUsed).multipliedBy(txDetail.gasPrice).dividedBy(1e18).toFixed(8, 1)} ${txDetail.feeCy}`
@@ -352,7 +344,7 @@ export class TxInfo extends React.Component<Props, State> {
                             </IonItem>
                             <IonItem mode="ios">
                                 <IonLabel color="dark" className="info-label"
-                                          position="stacked">Gas Price:</IonLabel>
+                                          position="stacked">{i18n.t("gasPrice")}:</IonLabel>
                                 <div className="text-small-x2 word-break text-padding-normal" style={{width: "100%"}}>
                                     {
                                         `${new BigNumber(txDetail.gasPrice).dividedBy(1e9).toString(10)} GWei`
@@ -367,7 +359,7 @@ export class TxInfo extends React.Component<Props, State> {
                         <div className="receive-qr" style={{background: "#fff"}}>
                             <div className="viewa" onClick={() => {
                                 window.open(txDisplay.url)
-                            }}>View the transaction &gt;</div>
+                            }}>{i18n.t("viewTransaction")} &gt;</div>
                             <div className="qr-1">
                                 <div>
                                     <QRCodeSVG value={txDisplay.url}

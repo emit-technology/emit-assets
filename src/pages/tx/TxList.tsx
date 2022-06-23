@@ -26,7 +26,7 @@ import {tokenService} from "../../service/token";
 import {NoneData} from "../../components/Data/None";
 import {utils} from "../../common/utils";
 import config from "../../common/config";
-import rpc from "../../../../../emit-wallet/src/rpc";
+import i18n from "../../locales/i18n";
 
 interface Props {
     refresh: number;
@@ -122,10 +122,10 @@ export class TxList extends React.Component<Props, State> {
                         this.setState({segment:e.detail.value})
                     }}>
                         <IonSegmentButton className="seg-btn" mode="md" value="activity">
-                            <IonLabel>Activity</IonLabel>
+                            <IonLabel>{i18n.t("activity")}</IonLabel>
                         </IonSegmentButton>
                         <IonSegmentButton className="seg-btn" mode="md" value="info">
-                            <IonLabel>Intro</IonLabel>
+                            <IonLabel>{i18n.t("intro")}</IonLabel>
                         </IonSegmentButton>
                     </IonSegment>
                     {
@@ -135,11 +135,11 @@ export class TxList extends React.Component<Props, State> {
                                 txs && txs.data && txs.data.length>0? txs.data.map((v,i) => {
                                     const amount = utils.fromValue(v.amount,token.decimal);
                                     let icon = arrowDownOutline;
-                                    let text = "Receive";
+                                    let text = i18n.t("receive");
                                     let prefix = "+"
                                     if(amount.toNumber()<=0){
                                         icon = arrowUpOutline;
-                                        text = "Send"
+                                        text = i18n.t("send")
                                         prefix = ""
                                     }
                                     return <IonItem key={i} onClick={() => {
@@ -168,33 +168,33 @@ export class TxList extends React.Component<Props, State> {
                         segment == 'info' &&
                             <div>
                                 <IonItem>
-                                    <IonLabel slot="start" position="fixed">Symbol</IonLabel>
+                                    <IonLabel slot="start" position="fixed">{i18n.t("symbol")}</IonLabel>
                                     <IonLabel color="medium" className="ion-text-wrap">{token && token.symbol}</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                    <IonLabel slot="start" position="fixed">Name</IonLabel>
+                                    <IonLabel slot="start" position="fixed">{i18n.t("name")}</IonLabel>
                                     <IonLabel color="medium" className="ion-text-wrap">{token && token.name}</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                    <IonLabel slot="start" position="fixed">Address</IonLabel>
+                                    <IonLabel slot="start" position="fixed">{i18n.t("address")}</IonLabel>
                                     <IonLabel color="medium" className="ion-text-wrap">{token && token.contractAddress}</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                    <IonLabel slot="start" position="fixed">Chain</IonLabel>
+                                    <IonLabel slot="start" position="fixed">{i18n.t("description")}</IonLabel>
                                     <IonLabel color="medium" className="ion-text-wrap">{token && config.chains[token.chain].description}</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                    <IonLabel slot="start" position="fixed">Standard</IonLabel>
+                                    <IonLabel slot="start" position="fixed">{i18n.t("standard")}</IonLabel>
                                     <IonLabel color="medium" className="ion-text-wrap">{token && TokenProtocol[token.protocol]}</IonLabel>
                                 </IonItem>
                                 <IonItem>
-                                    <IonLabel slot="start" position="fixed">Decimal</IonLabel>
+                                    <IonLabel slot="start" position="fixed">{i18n.t("decimal")}</IonLabel>
                                     <IonLabel color="medium" className="ion-text-wrap">{token && token.decimal}</IonLabel>
                                 </IonItem>
                                 {
                                     token && token.totalSupply &&
                                     <IonItem>
-                                        <IonLabel slot="start" position="fixed">Total Supply</IonLabel>
+                                        <IonLabel slot="start" position="fixed">{i18n.t("totalSupply")}</IonLabel>
                                         <IonLabel color="medium" className="ion-text-wrap">{token && utils.fromValue(token.totalSupply,token.decimal).toString(0)}</IonLabel>
                                     </IonItem>
                                 }
@@ -210,14 +210,16 @@ export class TxList extends React.Component<Props, State> {
 
                     <div className="token-tx-bt">
                         <IonRow>
-                            <IonCol><IonButton expand="block" onClick={() => {
-                                oRouter.transferToken(chain, symbol,tokenAddress)
-                            }}>Send</IonButton></IonCol>
+                            <IonCol>
+                                <IonButton expand="block" onClick={() => { oRouter.transferToken(chain, symbol,tokenAddress) }}>
+                                    {i18n.t("send")}
+                                </IonButton>
+                            </IonCol>
                             <IonCol><IonButton expand="block" onClick={() => {
                                 emitBoxSdk.getAccount().then(account => {
                                     oRouter.addressReceive(chain, symbol, account.addresses[chain])
                                 })
-                            }} fill="outline">Receive</IonButton></IonCol>
+                            }} fill="outline">{i18n.t("receive")}</IonButton></IonCol>
                         </IonRow>
                     </div>
                 </IonContent>

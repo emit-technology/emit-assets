@@ -239,6 +239,7 @@ class TxService implements ITx {
         } else if (chain == ChainType.EMIT) {
             let dataSets: Array<DataSet> = [];
             let target = toAddress;
+            let outData;
             if (chain != targetChain) {
                 const crossResource = await crossConfig.getTargetTokens(token.symbol, chain,token.contractAddress);
                 const resourceKeys = Object.keys(crossResource);
@@ -249,18 +250,21 @@ class TxService implements ITx {
                 const json = {
                     "transferType": 1,
                     "destinationChainID": targetChain,
-                    "resourceId": resourceKeys[0],
+                    "resourceId": resourceKeys[0].slice(2),
                     "recipient": toAddress.slice(2),
                     "callback": ""
                 }
                 const data = JSON.stringify(json);
-                dataSets.push({
-                    name: "depositFT",
-                    data: data,
-                    old: ""//TODO for atom operation
-                })
+                console.log("data",data)
+                // dataSets.push({
+                //     name: "depositFT",
+                //     data: data,
+                //     old: null //for atom operation
+                // })
+                outData = JSON.stringify({Method:"depositFT",Param: Buffer.from(data).toString("hex")});
+                console.log("outData",outData)
             }
-            return this.emitSend(chain, target, amount, token, dataSets)
+            return this.emitSend(chain, target, amount, token, outData,dataSets)
         }
     }
 
@@ -280,12 +284,12 @@ class TxService implements ITx {
         return await emitBoxSdk.web3[chain].eth.sendTransaction(txConfig);
     }
 
-    emitSend = async (chain: ChainType, receive: string, amount: string, token: Token, data: Array<any>) => {
+    emitSend = async (chain: ChainType, receive: string, amount: string, token: Token, outData: string,datasets:Array<any>) => {
         const account = await emitBoxSdk.getAccount();
         const from = account.addresses[chain];
         const prepareBlock = await emitBoxSdk.emitBox.emitDataNode.genPrepareBlock(
             from,
-            data,
+            datasets,
             {
                 settles: [],
                 outs: [
@@ -295,12 +299,14 @@ class TxService implements ITx {
                             category: utils.token2Category(token),
                             value: utils.toValueHex(amount),
                         },
-                        data: "" //TODO for refer data
+                        data: Buffer.from(outData).toString("hex")//TODO for refer data
                     },
                 ],
             },
             undefined
         );
+        console.log(prepareBlock);
+
         await emitBoxSdk.emitBox.emitDataNode.prepareBlock(prepareBlock);
         return Promise.resolve({
             transactionHash: prepareBlock.blk.parent_hash,
