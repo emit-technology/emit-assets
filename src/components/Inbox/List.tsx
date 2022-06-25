@@ -27,9 +27,11 @@ export const InboxList: React.FC<Props> = ({item,account, onReceive}) => {
     const [showModal,setShowModal] = React.useState(false)
 
     let crossData:CrossData;
-    try{
-      crossData = JSON.parse(Buffer.from(v.factor["data"],"hex").toString());
-    }catch (e){console.error(e)}
+    if(v.factor && v.factor["data"]){
+        try{
+            crossData = JSON.parse(Buffer.from(v.factor["data"],"hex").toString());
+        }catch (e){console.log(e)}
+    }
 
     const originChain = crossData && crossData.sourceId?crossData.sourceId:ChainType.EMIT;
     return (<>

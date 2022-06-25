@@ -10,6 +10,7 @@ import {
     paperPlaneSharp, globe, logoGithub, logoMedium, languageOutline, logoDiscord, logoYoutube, logoInstagram
 } from "ionicons/icons";
 import i18n from "../../locales/i18n";
+import {emitBoxSdk} from "../../service/emit";
 interface Props{
     router: HTMLIonRouterOutletElement | null;
     refresh: number;
@@ -165,6 +166,7 @@ export class Settings extends React.Component<Props, State> {
             lan.checked = language == lan.value;
             langs.push(lan)
         }
+        emitBoxSdk.emitBox.setLanguage(language);
         this.setState({languages:langs})
     }
 
