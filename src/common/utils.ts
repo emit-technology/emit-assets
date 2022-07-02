@@ -151,7 +151,7 @@ export const utils = {
     },
 
     fromHexValue: (v: string, decimal: number = 18): BigNumber => {
-        return new BigNumber(new BN(v, "hex", "le").toString()).dividedBy(
+        return new BigNumber(new BN(v, "hex", "be").toString()).dividedBy(
             10 ** decimal
         );
     },
@@ -168,7 +168,7 @@ export const utils = {
 
     toValueHex(v: any, decimal: number = 18) {
         const cv = new BigNumber(v).multipliedBy(10 ** decimal).toString(16);
-        return new BN(cv, "hex").toArrayLike(Buffer, "le", 32).toString("hex");
+        return new BN(cv, "hex").toArrayLike(Buffer, "be", 32).toString("hex");
     },
 
     canUseEmitAccountNode: (chain: number) => {

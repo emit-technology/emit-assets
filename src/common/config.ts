@@ -35,7 +35,7 @@ interface ExplorerUrl {
     block: string;
 }
 
-const NODE_ENV: string = 'development'//process.env.NODE_ENV || 'development';
+const NODE_ENV: string = 'production'//process.env.NODE_ENV || 'development';
 const development: IConfig = {
     recommendTokens: [
         {
@@ -225,6 +225,16 @@ const development: IConfig = {
 const production: IConfig =  {
     recommendTokens: [
         {
+            name: "EMIT",
+            symbol: "EMIT",
+            decimal: 18,
+            contractAddress: "ETk3ErnkKxpEcMm6NgZ3ZBvTLZbH2MLM9kjo6woVuufghDotE",
+            image: "./assets/img/tokens/EMIT.png",
+            protocol: TokenProtocol.EMIT,
+            chain: ChainType.EMIT.valueOf(),
+            feeCy: "EMIT"
+        },
+        {
             name: "Ethereum Network",
             symbol: "ETH",
             decimal: 18,
@@ -233,17 +243,6 @@ const production: IConfig =  {
             protocol: TokenProtocol.ETH,
             chain: ChainType.ETH.valueOf(),
             feeCy: "ETH"
-        },
-        {
-            name: "Bangs",
-            symbol: "Bangs",
-            decimal: 18,
-            contractAddress: "EMNNAy1n3Xi9NDMosyr4tn6PQUC8PCZzT4YWYcJtMi2ePwAzJ",
-            image: "./assets/img/tokens/EMIT.png",
-            protocol: TokenProtocol.EMIT,
-            chain: ChainType.EMIT.valueOf() ,
-            feeCy: "Bangs",
-            symbolTag: "Bangs",
         },
         {
             name: "BNB",
@@ -256,16 +255,47 @@ const production: IConfig =  {
             feeCy: "BNB"
         },
         {
-            name: "Bangs",
-            symbol: "Bangs",
+            name: "EMIT LIGHT Element",
+            symbol: "LIGHT",
             decimal: 18,
-            contractAddress: "0xec983Ef3B5b005a1A14e1AA1e911F0dbFDCc1C7c",
-            image: "./assets/img/tokens/BNB.png",
-            protocol: TokenProtocol.BEP20,
-            chain: ChainType.BSC.valueOf(),
-            feeCy: "BNB",
-            symbolTag: "Bangs",
+            contractAddress: "EQZLsvSWNCd1TJh6u6aYRzqZL9TxCdH8bWMwGHRSzXqJXEWj2",
+            image: "./assets/img/tokens/bLIGHT.png",
+            protocol: TokenProtocol.EMIT,
+            chain: ChainType.EMIT.valueOf(),
+            feeCy: "EMIT"
         },
+        {
+            name: "EMIT DARK Element",
+            symbol: "DARK",
+            decimal: 18,
+            contractAddress: "EQZLsvSWNCd1TJh6u6aYRzqZL9TxCdH8bWMwGHRSzXqJXEWj2",
+            image: "./assets/img/tokens/DARK.png",
+            protocol: TokenProtocol.EMIT,
+            chain: ChainType.EMIT.valueOf(),
+            feeCy: "EMIT"
+        },
+        {
+            name: "EMIT EARTH Element",
+            symbol: "EARTH",
+            decimal: 18,
+            contractAddress: "EQZLsvSWNCd1TJh6u6aYRzqZL9TxCdH8bWMwGHRSzXqJXEWj2",
+            image: "./assets/img/tokens/EARTH.png",
+            protocol: TokenProtocol.EMIT,
+            chain: ChainType.EMIT.valueOf(),
+            feeCy: "EMIT"
+        },
+
+        {
+            name: "EMIT WATER Element",
+            symbol: "WATER",
+            decimal: 18,
+            contractAddress: "EQZLsvSWNCd1TJh6u6aYRzqZL9TxCdH8bWMwGHRSzXqJXEWj2",
+            image: "./assets/img/tokens/WATER.png",
+            protocol: TokenProtocol.EMIT,
+            chain: ChainType.EMIT.valueOf(),
+            feeCy: "EMIT"
+        },
+
         {
             name: "EMIT LIGHT Element",
             symbol: "bLIGHT",
@@ -275,16 +305,6 @@ const production: IConfig =  {
             protocol: TokenProtocol.BEP20,
             chain: ChainType.BSC.valueOf(),
             feeCy: "BNB"
-        },
-        {
-            name: "eLIGHT",
-            symbol: "eLIGHT",
-            decimal: 18,
-            contractAddress: "0xD48f0cd85B983ac647E09ed06Ae148f458D06A57",
-            image: "./assets/img/tokens/eLIGHT.png",
-            protocol: TokenProtocol.ERC20,
-            chain: ChainType.ETH.valueOf(),
-            feeCy: "ETH"
         },
         {
             name: "EMIT DARK Element",
@@ -317,6 +337,7 @@ const production: IConfig =  {
             chain: ChainType.BSC.valueOf(),
             feeCy: "BNB"
         },
+
         {
             name: "Binance-Peg BUSD",
             symbol: "BUSD",
@@ -327,26 +348,6 @@ const production: IConfig =  {
             chain: ChainType.BSC.valueOf(),
             feeCy: "BNB"
         },
-        // {
-        //     name: "USDT",
-        //     symbol: "USDT",
-        //     decimal: 6,
-        //     contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-        //     image: "./assets/img/tokens/USDT.png",
-        //     protocol: TokenProtocol.ERC20,
-        //     chain: ChainType.ETH,
-        //     feeCy: "ETH"
-        // },
-        {
-            name: "Super ZERO",
-            symbol: "eSERO",
-            decimal: 18,
-            contractAddress: "0x944854f404c7C0dF9780651D9B29947C89D8fD19",
-            image: "./assets/img/tokens/SERO.png",
-            protocol: TokenProtocol.ERC20,
-            chain: ChainType.ETH.valueOf(),
-            feeCy: "ETH"
-        },
     ],
     recommendNfts: [],
     emitAccountNodeHost: "https://node-account.emit.technology",
@@ -354,12 +355,12 @@ const production: IConfig =  {
         [ChainType.EMIT.valueOf()]: {
             description: "EMIT CORE",
             explorer: {
-                tx: "https://bscscan.com/tx/{0}",
-                address: "https://bscscan.com/address/{0}",
-                contract: "https://bscscan.com/address/{0}",
-                block: "https://bscscan.com/block/{0}"
+                tx: "",
+                address: "",
+                contract: "",
+                block: ""
             },
-            network: {nodeUrl: "https://node-emit-dev.bangs.network", chainId: "667", chainType: ChainType.EMIT.valueOf()},
+            network: {nodeUrl: "https://core-node-beta.emit.technology", chainId: "667", chainType: ChainType.EMIT.valueOf()},
             common: null,
             nodeAddress: "EaWt4Q2yLcthiETUJNadA1ihHiP4JDd4uPtSN4Rku74PS5aoi"
         },
@@ -404,7 +405,7 @@ const production: IConfig =  {
             nodeAddress: ""
         }
     },
-    crossConfigUrl: "https://node-cross-dev.bangs.network"
+    crossConfigUrl: "https://core-node-cross.emit.technology"
 }
 
 // {

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import {useRef,useState} from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
-import {IonApp, IonRouterOutlet, setupIonicReact,IonTabs,IonTabBar,IonLabel,IonTabButton,IonIcon,IonBadge
+import {IonApp, IonRouterOutlet,IonButton,
+    IonModal, IonHeader, IonContent, IonToolbar, IonTitle, setupIonicReact,IonTabs,IonTabBar,IonLabel,IonTabButton,IonIcon,IonBadge,
 } from '@ionic/react';
-import {IonReactRouter, IonReactHashRouter} from '@ionic/react-router';
+import {IonReactHashRouter} from '@ionic/react-router';
 import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
@@ -35,16 +36,17 @@ import {TxInfo} from "./pages/tx/TxInfo";
 import {SendNftPage} from "./pages/tx/SendNft";
 import {Settings} from "./pages/settings/Settings";
 import i18n from './locales/i18n'
+import {utils} from "./common/utils";
 
 setupIonicReact({
     mode: "ios"
 });
-
 const App: React.FC = () => {
     const routerRef = useRef<HTMLIonRouterOutletElement | null>(null);
     const [unSettleNum,setUnSettle] = useState(0)
     const [freshNum,setFreshNum] = useState(0)
-    // const isNotChrome = utils.isChrome();
+    const isNotChrome = !utils.isChrome();
+
     return (
         <div className={`page`}>
             <div className="page-inner">
@@ -138,9 +140,22 @@ const App: React.FC = () => {
                             }}>
                             </Route>
                         </Switch>
-
-
                     </IonReactHashRouter>
+                    <IonModal isOpen={isNotChrome} className="ndcr" backdropDismiss={false}>
+                        <IonHeader collapse="fade">
+                            <IonToolbar>
+                                <IonTitle>EMIT Notification</IonTitle>
+                            </IonToolbar>
+                        </IonHeader>
+                        <IonContent className="ion-padding">
+                            <p>
+                                EMIT-Assets works best on Chrome browser.
+                            </p>
+                            <IonButton expand="block" onClick={()=>{
+                                window.open("https://www.google.com/chrome/")
+                            }}>Click to download Chrome browser</IonButton>
+                        </IonContent>
+                    </IonModal>
                 </IonApp>
             </div>
         </div>

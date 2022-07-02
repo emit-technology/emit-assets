@@ -159,7 +159,29 @@ export class SendPage extends React.Component<Props, State> {
                     }
                 }, 1500)
             })
+        }else if (chain == ChainType.EMIT) {
+            let count = 0;
+            return new Promise((resolve, reject) => {
+                let interId;
+                interId = setInterval(() => {
+                    count++;
+                    if (count > 60) {
+                        clearInterval(interId);
+                        reject(i18n.t("pendingTimeout"))
+                    } else {
+                       emitBoxSdk.emitBox.emitDataNode.getBlock(tx.address,tx.blockNumber).then(rest=>{
+                           if (rest && rest.block) {
+                               clearInterval(interId)
+                               resolve(true)
+                           }
+                       }).catch(e=>{
+                           console.error(e)
+                       })
+                    }
+                }, 1500)
+            })
         }
+
         return true
     }
 

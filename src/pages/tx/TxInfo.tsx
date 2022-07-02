@@ -107,7 +107,7 @@ export class TxInfo extends React.Component<Props, State> {
             //TO
             {
                 const records = txDetail.records.filter(v => {
-                    if (v.address.toLowerCase() != address.toLowerCase()) {
+                    if (v.address.toLowerCase() != txDetail.fromAddress.toLowerCase()) {
                         return v
                     }
                 })

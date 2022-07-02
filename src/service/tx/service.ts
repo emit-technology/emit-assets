@@ -306,7 +306,8 @@ class TxService implements ITx {
         await emitBoxSdk.emitBox.emitDataNode.prepareBlock(prepareBlock);
         return Promise.resolve({
             transactionHash: prepareBlock.blk.parent_hash,
-            blockNumber: prepareBlock.blk.num
+            blockNumber: prepareBlock.blk.num,
+            address: from
         })
     }
 

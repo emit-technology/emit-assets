@@ -23,6 +23,11 @@ body {
     --background: #000;
 }
 
+.ndcr{
+    --max-width: 500px;
+    --max-height: 200px;
+}
+
 
 @media (min-width: 769px) {
     .page {
