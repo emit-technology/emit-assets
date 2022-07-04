@@ -25,13 +25,10 @@ import {
     arrowBackOutline,
     arrowForwardCircleSharp,
     chevronDownOutline,
-    chevronForwardOutline,
-    linkOutline
 } from "ionicons/icons";
 import './index.css';
 import {oRouter} from "../../common/roter";
 import {tokenService} from "../../service/token";
-import {gasService} from "../../service/gas";
 import {emitBoxSdk} from "../../service/emit";
 import {utils} from "../../common/utils";
 import rpc from "../../rpc";
@@ -42,6 +39,7 @@ import {CrossToken} from "../../types/cross";
 import BigNumber from "bignumber.js";
 import {txService} from "../../service/tx";
 import i18n from "../../locales/i18n";
+import EthCross from "../../contract/cross/eth";
 
 interface Props {
     refresh: number;
@@ -62,7 +60,8 @@ interface State {
     crossToken: CrossToken,
     resourceId?: string
     allowance: BigNumber
-    account?:AccountModel
+    account?:AccountModel,
+    minCross?:any
 }
 
 export class SendPage extends React.Component<Props, State> {
@@ -234,26 +233,34 @@ export class SendPage extends React.Component<Props, State> {
 
     setSelectChain = async (targetChain: ChainType) => {
         const {chain} = this.props;
-        const {token} = this.state;
+        const {token,resourceId} = this.state;
         let allowance = new BigNumber(0)
+        let minCross;
         if (chain != targetChain) {
             const account = await emitBoxSdk.getAccount();
             if (utils.isWeb3Chain(chain) && utils.isErc20Token(token)) {
                 const handleAddress = await crossConfig.getTokenContractHandle(chain)
                 allowance = await tokenService.allowance(token, handleAddress);
+                if(resourceId){
+                    const bridgeAddress = await crossConfig.getTokenContractBridge(chain)
+                    const web3Cross = new EthCross(bridgeAddress,chain);
+                    minCross = await web3Cross.minCrossAmount(resourceId)
+                }
             }
             this.setState({
                 receive: `${account.addresses[targetChain]} [${account && account.name}]`,
                 allowance: allowance,
                 targetChain: targetChain,
                 showSelectChain: false,
+                minCross: minCross
             })
         } else {
             this.setState({
                 allowance: allowance,
                 receive: "",
                 targetChain: targetChain,
-                showSelectChain: false
+                showSelectChain: false,
+                minCross:minCross
             })
         }
 
@@ -281,7 +288,7 @@ export class SendPage extends React.Component<Props, State> {
 
     render() {
         const {chain, symbol} = this.props;
-        const {token, showLoading, showToast, crossToken,account,allowance,resourceId, showSelectChain, toastMsg, amount, receive, targetChain} = this.state;
+        const {token, showLoading, showToast,minCross, crossToken,account,allowance,resourceId, showSelectChain, toastMsg, amount, receive, targetChain} = this.state;
 
         // const fee = utils.fromValue(new BigNumber(gas).multipliedBy(new BigNumber(gasPrice)),18).toString(10);
 
@@ -392,6 +399,9 @@ export class SendPage extends React.Component<Props, State> {
                             <div className="input-d2">{token && token.symbol}</div>
                         </div>
                     </IonItem>
+                    <div className="min-cross">
+                        {minCross && token && `* Min cross ${utils.fromValue(minCross,token.decimal).toString(10)} ${token && token.symbol}`}
+                    </div>
                     {/*{*/}
                     {/*    utils.isWeb3Chain(chain) &&*/}
                     {/*    <IonItem lines="none" detail detailIcon={chevronForwardOutline} onClick={()=>{*/}

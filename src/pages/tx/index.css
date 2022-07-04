@@ -108,3 +108,10 @@
 .info-block-span{
     /*background-color: #3ab9fe;*/
 }
+
+.min-cross{
+    padding: 0 20px;
+    font-size: 16px;
+    color: var(--ion-color-secondary);
+    font-weight: 600;
+}
