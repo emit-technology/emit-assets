@@ -21,7 +21,7 @@ import {AccountModel} from "@emit-technology/emit-lib";
 import {
     arrowDownCircleOutline,
     arrowUpCircleOutline, chevronDownOutline,
-    linkOutline, optionsOutline,
+    linkOutline, optionsOutline, personOutline,
     scanCircleOutline
 } from "ionicons/icons";
 import {NftList} from "../components/Nft/List";
@@ -190,7 +190,7 @@ export class Home extends React.Component<Props, State> {
                                     this.setShowLoading(false)
                                 });
                             }}>
-                                <IonIcon slot="start" icon={linkOutline}/>{account && account.name ? account.name : "EMIT-Account"}
+                                <IonIcon slot="start" icon={personOutline}/>{account && account.name ? account.name : "Select Account"}
                                 <IonIcon slot="end" icon={chevronDownOutline}/>
                             </IonButton>
                         </IonButtons>

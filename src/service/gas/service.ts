@@ -1,7 +1,6 @@
 import {IGas} from './interface';
 import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import {utils} from "../../common/utils";
-import rpc from "../../rpc";
 import {emitBoxSdk} from "../emit";
 
 class GasService implements IGas {
