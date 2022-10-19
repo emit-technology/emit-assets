@@ -1,7 +1,7 @@
 import * as React from 'react';
-import {useRef,useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
-import {IonApp, IonRouterOutlet,IonButton,
+import {IonApp, IonRouterOutlet,IonButton,IonItem,IonCheckbox,
     IonModal, IonHeader, IonContent, IonToolbar, IonTitle, setupIonicReact,IonTabs,IonTabBar,IonLabel,IonTabButton,IonIcon,IonBadge,
 } from '@ionic/react';
 import {IonReactHashRouter} from '@ionic/react-router';
@@ -37,6 +37,7 @@ import {SendNftPage} from "./pages/tx/SendNft";
 import {Settings} from "./pages/settings/Settings";
 import i18n from './locales/i18n'
 import {utils} from "./common/utils";
+import selfStorage from "./common/storage";
 
 setupIonicReact({
     mode: "ios"
@@ -45,8 +46,13 @@ const App: React.FC = () => {
     const routerRef = useRef<HTMLIonRouterOutletElement | null>(null);
     const [unSettleNum,setUnSettle] = useState(0)
     const [freshNum,setFreshNum] = useState(0)
-    const isNotChrome = !utils.isChrome();
+    const [checked,setChecked] = useState(false);
+    const isNotChrome = !utils.isChrome() && !selfStorage.getItem("neverRemind");
 
+    useEffect(()=>{
+        const neverRemind = selfStorage.getItem("neverRemind")
+        setChecked(!!neverRemind)
+    },[])
     return (
         <div className={`page`}>
             <div className="page-inner">
@@ -141,17 +147,27 @@ const App: React.FC = () => {
                             </Route>
                         </Switch>
                     </IonReactHashRouter>
-                    <IonModal isOpen={isNotChrome} className="ndcr" backdropDismiss={false}>
+                    <IonModal isOpen={isNotChrome} className="ndcr">
                         <IonHeader collapse="fade">
                             <IonToolbar>
                                 <IonTitle>EMIT Notification</IonTitle>
                             </IonToolbar>
                         </IonHeader>
                         <IonContent className="ion-padding">
-                            <p>
-                                EMIT-Assets works best on Chrome browser.
-                            </p>
+                            <IonItem lines="none">
+                                <IonLabel>
+                                    EMIT-Assets works best on Chrome browser.
+                                </IonLabel>
+                            </IonItem>
+                            <IonItem lines="none">
+                                <IonCheckbox slot="start" onIonChange={(e)=>{
+                                    setChecked(e.detail.checked)
+                                }}/>
+                                <IonLabel>Never remind again</IonLabel>
+                            </IonItem>
                             <IonButton expand="block" onClick={()=>{
+                                selfStorage.setItem("neverRemind",checked)
+                                setFreshNum(Date.now)
                                 window.open("https://www.google.com/chrome/")
                             }}>Click to download Chrome browser</IonButton>
                         </IonContent>
