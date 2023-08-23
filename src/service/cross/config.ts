@@ -16,12 +16,16 @@ class Config {
 
     getTokenContractHandle = async (chain:SourceId):Promise<string> =>{
         const cfg = await this.init();
-        return cfg["token"].contract[SourceId[chain]]["handler"]
+        const rest = cfg["token"].contract[SourceId[chain]]["handler"]
+        console.log("handler>>>>>", rest);
+        return rest
     }
 
     getTokenContractBridge = async (chain:SourceId):Promise<string> =>{
         const cfg = await this.init();
-        return cfg["token"]["contract"][SourceId[chain]]["bridger"]
+        const rest = cfg["token"]["contract"][SourceId[chain]]["bridger"]
+        console.log("bridger>>>>", rest);
+        return rest
     }
     getTokenContractFee = async (chain:SourceId):Promise<string> =>{
         const cfg = await this.init();
