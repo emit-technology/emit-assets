@@ -250,11 +250,12 @@ class TxService implements ITx {
                 target = await crossConfig.getTokenContractBridge(sourceId);
                 const json = {
                     "transferType": 1,
-                    "destinationChainID": targetChain,
+                    "destinationChainID": utils.chain2SourceId(targetChain),
                     "resourceId": resourceKeys[0].slice(2),
                     "recipient": toAddress.slice(2),
                     "callback": ""
                 }
+                console.log("====>> cross data::", json)
                 const data = JSON.stringify(json);
                 // dataSets.push({
                 //     name: "depositFT",
