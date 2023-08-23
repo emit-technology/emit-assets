@@ -1,18 +1,30 @@
 import * as React from 'react';
 import {
-    IonLabel, IonModal, IonItem, IonButton, IonCard, IonCardTitle, IonCardSubtitle, IonText,
-    IonCardContent, IonBadge,IonRouterLink, IonCardHeader,
-    IonRow, IonCol, IonIcon, IonPage, IonHeader, IonToolbar, IonTitle, IonContent
+    IonBadge,
+    IonButton,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardSubtitle,
+    IonCardTitle,
+    IonCol,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonModal,
+    IonPage,
+    IonRouterLink,
+    IonRow,
+    IonText,
+    IonTitle,
+    IonToolbar
 } from '@ionic/react';
 import {utils} from "../../common/utils";
-import {
-    arrowForwardCircleOutline,
-    close, ellipsisHorizontalOutline,
-    linkOutline
-} from "ionicons/icons";
+import {arrowForwardCircleOutline, close, ellipsisHorizontalOutline, linkOutline} from "ionicons/icons";
 import config from "../../common/config";
-import {AccountModel, ChainType} from "@emit-technology/emit-lib";
-import {SettleResp} from '@emit-technology/emit-lib'
+import {AccountModel, ChainType, SettleResp} from "@emit-technology/emit-lib";
 import i18n from '../../locales/i18n';
 import {CrossData} from "../../types/cross";
 
@@ -33,7 +45,11 @@ export const InboxList: React.FC<Props> = ({item,account, onReceive}) => {
         }catch (e){console.log(e)}
     }
 
-    const originChain = crossData && crossData.sourceId?crossData.sourceId:ChainType.EMIT;
+    let originChain = crossData && crossData.sourceId?crossData.sourceId:ChainType.EMIT;
+    if(originChain == 1){
+        originChain = ChainType.ETH
+    }
+    // console.log("item:::",crossData, item);
     return (<>
         <IonCard>
             <IonCardHeader>
