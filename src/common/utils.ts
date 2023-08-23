@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js';
-import {Category, Factor} from "@emit-technology/emit-lib";
+import {Category, ChainType, checkSumAddress, Factor, fromAddressBytes} from "@emit-technology/emit-lib";
 import config from "./config";
 import {Token, TokenProtocol} from "../types";
-import {AccountModel,ChainType} from '@emit-technology/emit-lib';
 import web3Utils, {toChecksumAddress} from "web3-utils";
-import {checkSumAddress, fromAddressBytes} from '@emit-technology/emit-lib';
+import {SourceId} from "../types/cross";
 
 
 const format = require('date-format');
@@ -240,7 +239,24 @@ export const utils = {
             // not Google Chrome
         }
         return false;
-    }
+    },
 
+    sourceId2ChainType: (sourceId: SourceId): ChainType =>{
+        if(sourceId == SourceId.SERO){
+            return ChainType.SERO
+        }else if(sourceId == SourceId.ETH){
+            return ChainType.ETH
+        }
+        return ChainType[SourceId[sourceId].valueOf()]
+    },
+
+    chain2SourceId: (chain: ChainType): SourceId =>{
+        if(chain == ChainType.SERO){
+            return SourceId.SERO
+        }else if(chain == ChainType.ETH){
+            return SourceId.ETH
+        }
+        return SourceId[ChainType[chain].valueOf()]
+    }
 
 }

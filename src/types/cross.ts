@@ -45,8 +45,8 @@ export enum TransferType {
 
 export interface CrossBill {
     transferType: TransferType,
-    SourceId: ChainType,
-    DestinationId: ChainType,
+    SourceId: SourceId,
+    DestinationId: SourceId,
     DepositNonce: number,
     ResourceId: string,
     recipient: string
@@ -61,11 +61,20 @@ export interface CrossBill {
 
 export interface CrossData {
     transferType: TransferType,
-    sourceId: ChainType,
-    destinationChainID: ChainType,
+    sourceId: SourceId,
+    destinationChainID: SourceId,
     resourceId: string,
     recipient: string,
     callback: string,
     sender: string,
     txHash: string
+}
+
+export enum SourceId {
+    _,
+    ETH,
+    SERO,
+    TRON,
+    BSC,
+    EMIT
 }

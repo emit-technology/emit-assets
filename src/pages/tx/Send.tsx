@@ -84,7 +84,11 @@ export class SendPage extends React.Component<Props, State> {
     init = async () => {
         const {chain, symbol,tokenAddress} = this.props;
         const token = await tokenService.getTokenBalance(chain, symbol,tokenAddress);
-        const crossResource = await crossConfig.getTargetTokens(symbol, chain,tokenAddress);
+
+        const sourceId = utils.chain2SourceId(chain)
+
+        const crossResource = await crossConfig.getTargetTokens(symbol, sourceId,tokenAddress);
+
         const resourceIds = Object.keys(crossResource);
         const account = await emitBoxSdk.getAccount();
         if (resourceIds && resourceIds.length > 0) {
@@ -186,6 +190,7 @@ export class SendPage extends React.Component<Props, State> {
 
     confirmApprove = async (chain: ChainType) => {
         const {token} = this.state;
+        const sourceId = utils.chain2SourceId(chain)
         if (utils.isWeb3Chain(chain)) {
             let count = 0;
             return new Promise((resolve, reject) => {
@@ -197,7 +202,7 @@ export class SendPage extends React.Component<Props, State> {
                         reject(i18n.t("pendingTimeout"))
                     } else {
                         if (utils.isWeb3Chain(chain) && utils.isErc20Token(token)) {
-                            crossConfig.getTokenContractHandle(chain).then(handleAddress=>{
+                            crossConfig.getTokenContractHandle(sourceId).then(handleAddress=>{
                                 tokenService.allowance(token, handleAddress).then((allowance:any)=>{
                                    if(new BigNumber(allowance).toNumber()>0){
                                        resolve(allowance)
@@ -236,13 +241,14 @@ export class SendPage extends React.Component<Props, State> {
         const {token,resourceId} = this.state;
         let allowance = new BigNumber(0)
         let minCross;
+        const sourceId = utils.chain2SourceId(chain)
         if (chain != targetChain) {
             const account = await emitBoxSdk.getAccount();
             if (utils.isWeb3Chain(chain) && utils.isErc20Token(token)) {
-                const handleAddress = await crossConfig.getTokenContractHandle(chain)
+                const handleAddress = await crossConfig.getTokenContractHandle(sourceId)
                 allowance = await tokenService.allowance(token, handleAddress);
                 if(resourceId){
-                    const bridgeAddress = await crossConfig.getTokenContractBridge(chain)
+                    const bridgeAddress = await crossConfig.getTokenContractBridge(sourceId)
                     const web3Cross = new EthCross(bridgeAddress,chain);
                     minCross = await web3Cross.minCrossAmount(resourceId)
                 }

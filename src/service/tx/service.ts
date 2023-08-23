@@ -205,20 +205,21 @@ class TxService implements ITx {
         if(from.toLowerCase() == toAddress.toLowerCase()){
             return Promise.reject("The to address can not be the same with sender!")
         }
+        const sourceId = utils.chain2SourceId(chain)
         if (utils.isWeb3Chain(chain)) {
             let data: string;
             if (chain != targetChain) {
                 //cross
-                const crossHandleAddress = await crossConfig.getTokenContractHandle(chain);
+                const crossHandleAddress = await crossConfig.getTokenContractHandle(sourceId);
                 const allowance = await tokenService.allowance(token, crossHandleAddress)
                 if (allowance.toNumber() == 0) {
                     //check approve
                     data = await tokenService.approve(token, crossHandleAddress);
                     toAddress = token.contractAddress;
                 } else {
-                    const crossBridgeAddress = await crossConfig.getTokenContractBridge(chain);
+                    const crossBridgeAddress = await crossConfig.getTokenContractBridge(sourceId);
                     const contract = new EthCross(crossBridgeAddress, chain);
-                    const crossResource = await crossConfig.getTargetTokens(token.symbol, chain,token.contractAddress);
+                    const crossResource = await crossConfig.getTargetTokens(token.symbol, sourceId,token.contractAddress);
                     const resourceKeys = Object.keys(crossResource);
                     if (!resourceKeys || resourceKeys.length == 0) {
                         return Promise.reject("Cross resourceId not found!")
@@ -241,12 +242,12 @@ class TxService implements ITx {
             let target = toAddress;
             let outData;
             if (chain != targetChain) {
-                const crossResource = await crossConfig.getTargetTokens(token.symbol, chain,token.contractAddress);
+                const crossResource = await crossConfig.getTargetTokens(token.symbol, sourceId,token.contractAddress);
                 const resourceKeys = Object.keys(crossResource);
                 if (!resourceKeys || resourceKeys.length == 0) {
                     return Promise.reject("Cross resourceId not found!")
                 }
-                target = await crossConfig.getTokenContractBridge(ChainType.EMIT);
+                target = await crossConfig.getTokenContractBridge(sourceId);
                 const json = {
                     "transferType": 1,
                     "destinationChainID": targetChain,
