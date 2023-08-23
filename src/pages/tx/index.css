@@ -25,6 +25,9 @@
     position: relative;
 }
 
+.token-icon > img {
+    border-radius: 50% !important;
+}
 
 .token-balance{
     font-family: "Abel-Regular", sans-serif;
