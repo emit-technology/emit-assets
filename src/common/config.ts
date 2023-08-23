@@ -255,6 +255,26 @@ const production: IConfig =  {
             feeCy: "BNB"
         },
         {
+            name: "PINS",
+            symbol: "PINS",
+            decimal: 18,
+            contractAddress: "0x92ACA969b77BD899C05ca0e1DC050cd003457d60",
+            image: "./assets/img/tokens/PINS.png",
+            protocol: TokenProtocol.ERC20,
+            chain: ChainType.ETH.valueOf(),
+            feeCy: "ETH"
+        },
+        {
+            name: "PINS",
+            symbol: "PINS",
+            decimal: 18,
+            contractAddress: "EQZLsvSWNCd1TJh6u6aYRzqZL9TxCdH8bWMwGHRSzXqJXEWj2",
+            image: "./assets/img/tokens/PINS.png",
+            protocol: TokenProtocol.EMIT,
+            chain: ChainType.EMIT.valueOf(),
+            feeCy: "EMIT"
+        },
+        {
             name: "EMIT LIGHT Element",
             symbol: "LIGHT",
             decimal: 18,
