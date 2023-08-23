@@ -19,6 +19,7 @@ interface Props{
 export const BillList:React.FC<Props> = ({item,onReceive})=>{
     const v = item;
     const [showModal,setShowModal] = React.useState(false)
+    const chainId = utils.sourceId2ChainType(item.DestinationId)
     return (<>
         <IonCard>
             <IonCardHeader>
@@ -27,7 +28,7 @@ export const BillList:React.FC<Props> = ({item,onReceive})=>{
                         <IonCol size="9">
                             <IonBadge color="light"><IonIcon src={linkOutline} className="icon-transform-3"/>&nbsp;{config.chains[ChainType.EMIT].description}
                                 &nbsp;<IonIcon src={arrowForwardCircleOutline} className="icon-transform-3"/>&nbsp;
-                                <IonIcon src={linkOutline} className="icon-transform-3"/>&nbsp;{config.chains[ChainType.BSC].description}</IonBadge>
+                                <IonIcon src={linkOutline} className="icon-transform-3"/>&nbsp;{config.chains[chainId].description}</IonBadge>
                         </IonCol>
                         <IonCol>
                             <div style={{float: "right"}}><IonIcon src={ellipsisHorizontalOutline} color="medium" onClick={()=>{

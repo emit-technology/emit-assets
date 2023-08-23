@@ -1,7 +1,7 @@
 import {emitBoxSdk} from "../emit";
 import {ChainType, SettleResp} from "@emit-technology/emit-lib";
 import {crossBillService} from "../cross/bill";
-import {CrossBill} from "../../types/cross";
+import {CrossBill, SourceId} from "../../types/cross";
 
 class InboxService {
 
@@ -9,9 +9,13 @@ class InboxService {
         const account = await emitBoxSdk.getAccount();
         const settles = await emitBoxSdk.emitBox.emitDataNode.getUnSettles(account.addresses[ChainType.EMIT]);
         const bills = await crossBillService.list(ChainType.BSC);
+        const billsETH = await crossBillService.list(ChainType.ETH);
         const data: Array<any> = [];
         if (bills && bills.length > 0) {
             data.push(...bills);
+        }
+        if (billsETH && billsETH.length > 0) {
+            data.push(...billsETH);
         }
         // const settled:Array<SettleResp> = [];
         if (settles && settles.length > 0) {

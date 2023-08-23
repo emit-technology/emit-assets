@@ -17,7 +17,8 @@ class Bill {
 
     list = async (chain: ChainType): Promise<Array<CrossBill>> => {
         const account = await emitBoxSdk.getAccount();
-        const items: Array<CrossBill> = await rpc.get(`${config.crossConfigUrl}/bills/${account.addresses[chain]}/${chain}`);
+        const sourceId = utils.chain2SourceId(chain)
+        const items: Array<CrossBill> = await rpc.get(`${config.crossConfigUrl}/bills/${account.addresses[chain]}/${sourceId}`);
         return items
     }
 

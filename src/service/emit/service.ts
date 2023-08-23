@@ -51,6 +51,9 @@ class EmitBoxSdk {
         if(act && act.addresses && selfStorage.getItem("emit_address")){
             act.addresses[ChainType.EMIT] = selfStorage.getItem("emit_address");
         }
+        if(act && act.addresses && selfStorage.getItem("eth_address")){
+            act.addresses[ChainType.ETH] = selfStorage.getItem("eth_address");
+        }
         return act
     }
 
